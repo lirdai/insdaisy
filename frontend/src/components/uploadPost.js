@@ -31,8 +31,8 @@ const Upload = ({ handleClose, show, userID, addPost }) => {
     const handleSubmit = (event) => {
         event.preventDefault()
 
-        const key = event.target.image.files[0].name
-        const type = event.target.image.files[0].type
+        const key = file.name
+        const type = file.type
 
         setTitle(event.target.title.value)
 
@@ -59,7 +59,7 @@ const Upload = ({ handleClose, show, userID, addPost }) => {
                 .catch(error => console.log(error))
         }
     }, [addPost, title, userID, file, result_url.data])
-
+    
 
     return (
         <div>
@@ -70,10 +70,17 @@ const Upload = ({ handleClose, show, userID, addPost }) => {
                     </Modal.Header>
 
                     <Modal.Body>
-                        <input type='file' name='image' onChange={handleImagePreview} /><br/><br/><br/>
 
+                        <input 
+                            type='file' 
+                            name='image'
+                            id="imageLoader"
+                            onChange={handleImagePreview} 
+                        />
                         
-                        <Filter file={file} />
+                        <br/><br/><br/>
+
+                        <Filter file={file} setFile={setFile} />
                         
                         <textarea type='text' name='title' placeholder='Your comment within 200 words...'></textarea>
                     </Modal.Body>

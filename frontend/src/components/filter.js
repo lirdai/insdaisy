@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import LenaJS from "lena.js"
+import React, { useEffect, useState } from 'react'
+import * as LenaJS from "lena.js"
 
 
 
@@ -78,10 +78,15 @@ const DEFAULT_OPTIONS = [
 
 
 
-const Filter = ({ file }) => {
+const Filter = ({ file, setFile }) => {
     const [ options, setOptions ] = useState(DEFAULT_OPTIONS)
     const [ selectedOptionIndex, setSelectedOptionIndex ] = useState(0)
+    const [ newSrc, setNewSrc ] = useState(null)
+    const [ filter, setFilter ] = useState(null)
+    const [ onLoad, setOnLoad ] = useState(false)
+    const [ canvasUsed, setCanvasUsed ] = useState(false)
     const selectedOption = options[selectedOptionIndex]
+
 
     const handleSliderChange = (event) => {
         setOptions(preOptions => {
@@ -92,6 +97,7 @@ const Filter = ({ file }) => {
         })
     }
 
+
     const getImageStyle = () => {
         const filters = options.map(option => {
             return `${option.property}(${option.value}${option.unit})`
@@ -101,18 +107,75 @@ const Filter = ({ file }) => {
     }
 
 
+    const handleAdvancedFilter = (event) => { 
+        setFilter(() => LenaJS[event.target.value])
+    }
+
+    // Get the image
+    const originalImage = document.getElementById("original-image")
+    // The canvas where the processed image will be rendered (With filter)
+    const filteredImageCanvas = document.getElementById("filtered-canvas")
+    // Apply the initial filter
+    const handleOnLoad = () => {
+        setOnLoad(true)
+
+        if (filter) {
+            LenaJS.filterImage(filteredImageCanvas, filter, originalImage)
+            setNewSrc(filteredImageCanvas.toDataURL(file.type))
+            setCanvasUsed(true)
+        }
+    }
+
+
+    useEffect(() => {
+        if (file && onLoad) {
+            if (!filter) {
+                setNewSrc(URL.createObjectURL(file))
+            }
+        }
+    }, [file, filter, onLoad])
+
+
+    useEffect(() => {   
+        if (canvasUsed) {
+            filteredImageCanvas.toBlob(function(blob) {
+                const newFile = new File([blob], file.name, {
+                    type: "image/jpeg"
+                })
+                console.log(file)
+                console.log(newFile)
+                setFile(newFile)
+            }, "image/jpeg")
+        }
+    }, [canvasUsed])
+
+
+    const style_hidden = {
+        display: 'none'
+    }
+
+
     return (
         <div>
             <img 
                 id="original-image"
-                width="100%" 
                 src={file? URL.createObjectURL(file) : null} 
+                alt={file? file.name : null}
+                style={style_hidden}
+                onLoad={handleOnLoad}
+            />
+
+            <img
+                id="filtered-image"
+                width="100%" 
+                src={newSrc}
                 alt={file? file.name : null}
                 style={getImageStyle()}
             />
 
             <canvas 
-                id="filtered-image" 
+                id="filtered-canvas" 
+                style={style_hidden}
             />
             
             <br/><br/><br/>
@@ -134,6 +197,24 @@ const Filter = ({ file }) => {
                 value={selectedOption.value}
                 onChange={handleSliderChange}
             />
+
+            <br /><br /><br />
+
+            <h3>More advanced filter options...</h3>
+            <select id="filter-changer" onChange={handleAdvancedFilter}>
+                <option value="red">Red</option>
+                <option value="gaussian">Gaussian</option>
+                <option value="highpass">highpass</option>
+                <option value="invert">invert</option>
+                <option value="laplacian">laplacian</option>
+                <option value="prewittHorizontal">Prewitt Horizontal</option>
+                <option value="prewittVertical">Prewitt Vertical</option>
+                <option value="roberts">roberts</option>
+                <option value="sharpen">sharpen</option>
+                <option value="sobelHorizontal">sobel Horizontal</option>
+                <option value="sobelVertical">sobel Vertical</option>
+                <option value="thresholding">thresholding</option>
+            </select>
         </div>
         
     )
