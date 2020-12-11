@@ -78,7 +78,7 @@ const DEFAULT_OPTIONS = [
 
 
 
-const Filter = ({ file, setFile }) => {
+const Filter = ({ file, setNewFile }) => {
     const [ options, setOptions ] = useState(DEFAULT_OPTIONS)
     const [ selectedOptionIndex, setSelectedOptionIndex ] = useState(0)
     const [ newSrc, setNewSrc ] = useState(null)
@@ -107,10 +107,13 @@ const Filter = ({ file, setFile }) => {
     }
 
 
-    const handleAdvancedFilter = (event) => { 
-        setFilter(() => LenaJS[event.target.value])
+    const style_hidden = {
+        display: 'none'
     }
 
+
+
+    // IMAGE FILTER PROCESS
     // Get the image
     const originalImage = document.getElementById("original-image")
     // The canvas where the processed image will be rendered (With filter)
@@ -119,6 +122,7 @@ const Filter = ({ file, setFile }) => {
     const handleOnLoad = () => {
         setOnLoad(true)
 
+        // Show new Canvas image
         if (filter) {
             LenaJS.filterImage(filteredImageCanvas, filter, originalImage)
             setNewSrc(filteredImageCanvas.toDataURL(file.type))
@@ -126,7 +130,19 @@ const Filter = ({ file, setFile }) => {
         }
     }
 
+    // Filter Change
+    // When filter changes, image changes as well
+    const handleAdvancedFilter = (event) => { 
+        if (event.target.value !== "none") {
+            setFilter(() => LenaJS[event.target.value])
+        } else {
+            setFilter(null)
+            setNewFile(null)
+            setCanvasUsed(false)
+        }
+    }
 
+    // When file uploaded but filter doesn't exist, show original image
     useEffect(() => {
         if (file && onLoad) {
             if (!filter) {
@@ -135,24 +151,18 @@ const Filter = ({ file, setFile }) => {
         }
     }, [file, filter, onLoad])
 
-
+    // When filter used, Upload new file to AWS
     useEffect(() => {   
         if (canvasUsed) {
             filteredImageCanvas.toBlob(function(blob) {
-                const newFile = new File([blob], file.name, {
+                const new_file = new File([blob], file.name, {
                     type: "image/jpeg"
                 })
-                console.log(file)
-                console.log(newFile)
-                setFile(newFile)
-            }, "image/jpeg")
+                setNewFile(new_file)
+            }, "image/jpeg", 0.5)
         }
-    }, [canvasUsed])
+    }, [canvasUsed, file])
 
-
-    const style_hidden = {
-        display: 'none'
-    }
 
 
     return (
@@ -202,6 +212,7 @@ const Filter = ({ file, setFile }) => {
 
             <h3>More advanced filter options...</h3>
             <select id="filter-changer" onChange={handleAdvancedFilter}>
+                <option value="none">None</option>
                 <option value="red">Red</option>
                 <option value="gaussian">Gaussian</option>
                 <option value="highpass">highpass</option>
