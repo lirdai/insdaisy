@@ -15,7 +15,6 @@ import Home from './components/home'
 import Login from './components/login'
 import Register from './components/register'
 import User from './components/user'
-import Filter from './components/filter'
 
 
 
@@ -23,6 +22,15 @@ const client = new ApolloClient({
   cache: new InMemoryCache({
     typePolicies: {
       Post: {
+        fields: {
+          likes: {
+            merge(existing, incoming) {
+              return incoming
+            },
+          },
+        },
+      },
+      Comment: {
         fields: {
           likes: {
             merge(existing, incoming) {

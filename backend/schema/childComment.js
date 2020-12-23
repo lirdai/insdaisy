@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 
 
 
-const commentSchema = new mongoose.Schema({
+const childCommentSchema = new mongoose.Schema({
     content: {
         type: String,
         required: true
@@ -21,18 +21,12 @@ const commentSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
-    post: {
+    parentComment: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Post'
-    },
-    childComments: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'ChildComment'
-        }
-    ]
+        ref: 'Comment'
+    }
 })
 
 
 
-module.exports = mongoose.model('Comment', commentSchema)
+module.exports = mongoose.model('ChildComment', childCommentSchema)

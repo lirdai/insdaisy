@@ -29,6 +29,21 @@ query {
             post {
                 id
             }
+            childComments {
+                content
+                updated
+                likes {
+                  id
+                }
+                user {
+                    username
+                    avatar
+                }
+                parentComment {
+                  id
+                }
+                id
+            }
             id
         }
     }
@@ -63,6 +78,21 @@ mutation addPost($url: String!, $title: String!, $user: ID!) {
                 avatar
             }
             post {
+                id
+            }
+            childComments {
+                content
+                updated
+                likes {
+                  id
+                }
+                user {
+                    username
+                    avatar
+                }
+                parentComment {
+                  id
+                }
                 id
             }
             id
@@ -100,6 +130,21 @@ mutation addPostLikes($id: ID!, $likes: [ID]!) {
             post {
                 id
             }
+            childComments {
+                content
+                updated
+                likes {
+                  id
+                }
+                user {
+                    username
+                    avatar
+                }
+                parentComment {
+                  id
+                }
+                id
+            }
             id
         }
     }
@@ -135,6 +180,21 @@ mutation removePostLikes($id: ID!, $likes: [ID]!) {
             post {
                 id
             }
+            childComments {
+                content
+                updated
+                likes {
+                  id
+                }
+                user {
+                    username
+                    avatar
+                }
+                parentComment {
+                  id
+                }
+                id
+            }
             id
         }
     }
@@ -159,6 +219,21 @@ mutation addComment($content: String!, $user: ID!, $post: ID!) {
         post {
             id
         }
+        childComments {
+            content
+            updated
+            likes {
+              id
+            }
+            user {
+                username
+                avatar
+            }
+            parentComment {
+              id
+            }
+            id
+        }
         id
     }
 }`
@@ -181,6 +256,21 @@ mutation addCommentLikes($id: ID!, $likes: [ID]!) {
         post {
             id
         }
+        childComments {
+            content
+            updated
+            likes {
+              id
+            }
+            user {
+                username
+                avatar
+            }
+            parentComment {
+              id
+            }
+            id
+        }
         id
     }
 }`
@@ -201,6 +291,44 @@ mutation removeCommentLikes($id: ID!, $likes: [ID]!) {
             avatar
         }
         post {
+            id
+        }
+        childComments {
+            content
+            updated
+            likes {
+              id
+            }
+            user {
+                username
+                avatar
+            }
+            parentComment {
+              id
+            }
+            id
+        }
+        id
+    }
+}`
+
+export const ADD_CHILD_COMMENT = gql`
+mutation addChildComment($content: String!, $user: ID!, $parentComment: ID!) {
+    addChildComment(
+        content: $content
+        user: $user
+        parentComment: $parentComment
+    ) {
+        content
+        updated
+        likes {
+            id
+        }
+        user {
+            username
+            avatar
+        }
+        parentComment {
             id
         }
         id

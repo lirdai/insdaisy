@@ -3,6 +3,7 @@ import { Link } from "react-router-dom"
 import { useApolloClient } from '@apollo/client'
 import { useMutation, useQuery } from '@apollo/client'
 import Upload from './uploadPost'
+import Reply from './commentReply'
 import { 
     ALL_POSTS, 
     ADD_POST, 
@@ -10,7 +11,8 @@ import {
     REMOVE_POST_LIKES, 
     ADD_COMMENT,
     ADD_COMMENT_LIKES,
-    REMOVE_COMMENT_LIKES
+    REMOVE_COMMENT_LIKES,
+    ADD_CHILD_COMMENT
 } from './queries'
 
 
@@ -18,6 +20,7 @@ import {
 const Home = ({ token, setToken, userID, username }) => {
     // GraphQL
     const posts = useQuery(ALL_POSTS)
+
     const [ addPost, result_post ] = useMutation(ADD_POST)
     const [ addPostLikes, result_addPostLikes ] = useMutation(ADD_POST_LIKES)
     const [ removePostLikes, result_removePostLikes ] = useMutation(REMOVE_POST_LIKES)
@@ -26,13 +29,27 @@ const Home = ({ token, setToken, userID, username }) => {
     const [ addCommentLikes, result_addCommentLikes ] = useMutation(ADD_COMMENT_LIKES)
     const [ removeCommentLikes, result_removeCommentLikes ] = useMutation(REMOVE_COMMENT_LIKES)
 
+    const [ addChildComment, result_childComment ] = useMutation(ADD_CHILD_COMMENT)
+
 
     // useState
     const [ postsAll, setPostsAll ] = useState([])
-    const [ show, setShow ] = useState(false)
     const [ commentVisible, setCommentVisible ] = useState({})
-    const handleClose = () => setShow(false)
-    const handleShow = () => setShow(true)
+    const [ allPostsRender, setAllPostsRender ] = useState(false)
+
+    const [ uploadShow, setUploadShow ] = useState(false)
+    const handleUploadClose = () => setUploadShow(false)
+    const handleUploadShow = () => setUploadShow(true)
+
+    const [ replyShow, setReplyShow ] = useState(false)
+    const [ parent_comment, setParentComment ] = useState(null)
+    const handleReplyClose = () => {
+        setReplyShow(false)
+    }
+    const handleReplyShow = (id) => {
+        setReplyShow(true)
+        setParentComment(id)
+    }
 
 
     // Logout
@@ -125,13 +142,15 @@ const Home = ({ token, setToken, userID, username }) => {
     // useEffect
     // All Posts
     useEffect(() => {
-        if (posts.data) {
+        if (posts.data && allPostsRender === false) {
             // console.log(posts.data.allPosts)
             setPostsAll(posts.data.allPosts)
             setCommentVisible(posts.data.allPosts.reduce((accumulator, currentValue) => {
                 accumulator[currentValue.id] = false
                 return accumulator
             }, {}))
+
+            setAllPostsRender(true)
         }
     }, [posts.data])
 
@@ -172,8 +191,7 @@ const Home = ({ token, setToken, userID, username }) => {
         }
     }, [result_removePostLikes.data])
 
-
-    // Comment
+    // Parent Comment
     useEffect(() => {
         if (result_comment.data) {
             // console.log(result_comment.data.addComment)
@@ -222,9 +240,16 @@ const Home = ({ token, setToken, userID, username }) => {
         }
     }, [result_removeCommentLikes.data])
 
+    // Child Comment
+    useEffect(() => {
+        if (result_childComment.data) {
+            console.log(result_childComment.data.addChildComment)
+        }
+    }, [result_childComment.data]) 
+
 
     // console.log(commentVisible)
-    // console.log(postsAll)
+    console.log(postsAll)
     return (
         <div className='home'>
             {/* Navbar  +++  Footer*/}
@@ -241,7 +266,7 @@ const Home = ({ token, setToken, userID, username }) => {
                         {token === null
                             ? <div>Please log in to add post!</div>
                             : <div>
-                                <button style={styleBorder} onClick={handleShow}><i className="fas fa-edit fa-2x"></i>
+                                <button style={styleBorder} onClick={handleUploadShow}><i className="fas fa-edit fa-2x"></i>
                                 </button>
                             </div>
                         }
@@ -312,9 +337,30 @@ const Home = ({ token, setToken, userID, username }) => {
                                                     <p><b>{comment.user.username}</b></p>
                                                     <p>{comment.content}</p>
 
-                                                    <div className='comment-date-reply'>
-                                                        <p>{new Date(parseInt(comment.updated)).toLocaleString()}</p>
-                                                        <button style={style}>Reply</button>
+                                                    <div>
+                                                        <div className='comment-date-reply'>
+                                                            <p>{new Date(parseInt(comment.updated)).toLocaleString()}</p>
+                                                            <button style={style} onClick={() => handleReplyShow(comment.id)}>Reply</button>
+                                                        </div>
+
+                                                        {/* Display Child Comment */}
+                                                        {comment.childComments.map(child => 
+                                                            <div key={child.id}>
+                                                                <div>
+                                                                    <img src={child.user.avatar} alt={`avatar not display ${child.id}`} width="30px" height="30px" className='avatar-img-main' />
+                                                                </div>
+
+                                                                <div>
+                                                                    <p><b>{child.user.username}</b></p>
+                                                                    <p>{child.content}</p>
+
+                                                                    <div>
+                                                                        <p>{new Date(parseInt(child.updated)).toLocaleString()}</p>
+                                                                        <button style={style}>Reply</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        )} 
                                                     </div>
                                                 </div>
                                                 
@@ -341,11 +387,19 @@ const Home = ({ token, setToken, userID, username }) => {
                     }
 
                     <Upload 
-                        handleClose={handleClose}
-                        show={show}
+                        handleClose={handleUploadClose}
+                        show={uploadShow}
                         userID={userID}
                         addPost={addPost}
-                    />      
+                    />  
+
+                    <Reply 
+                        handleClose={handleReplyClose}
+                        show={replyShow}
+                        userID={userID}
+                        addChildComment={addChildComment}
+                        parent_comment={parent_comment}
+                    />   
                 </div>
             </div>
         </div>

@@ -7,6 +7,7 @@ const mongoose = require('mongoose')
 const User = require('./schema/user')
 const Post = require('./schema/post')
 const Comment = require('./schema/comment')
+const ChildComment = require('./schema/childComment')
 
 
 
@@ -64,6 +65,16 @@ const typeDefs = gql`
         likes: [User]!
         user: User
         post: Post
+        childComments: [ChildComment]!
+        id: ID!
+    }
+
+    type ChildComment {
+        content: String!
+        updated: String!
+        likes: [User]!
+        user: User
+        parentComment: Comment
         id: ID!
     }
 
@@ -110,6 +121,12 @@ const typeDefs = gql`
             likes: [ID]!
         ): Comment
 
+        addChildComment(
+            content: String!
+            user: ID!
+            parentComment: ID!
+        ): ChildComment
+
         createUser(
             username: String!
             avatar: String!
@@ -153,6 +170,20 @@ const resolvers = {
         },
         post(parent) {
             return Post.findById(parent.post)
+        },
+        childComments(parent) {
+            return parent.childComments.map(child => ChildComment.findById(child))
+        }
+    },
+    ChildComment: {
+        user(parent) {
+            return User.findById(parent.user)
+        },
+        likes(parent) {
+            return parent.likes.map(user => User.findById(user))
+        },
+        parentComment(parent) {
+            return Comment.findById(parent.parentComment)
         }
     },
     Mutation: {
@@ -279,6 +310,21 @@ const resolvers = {
             }
 
             return update
+        },
+        addChildComment: async (root, args) => {
+            const comment = await Comment.findById(args.parentComment)
+
+            const childComment = new ChildComment({
+                content: args.content,
+                user: args.user,
+                parentComment: args.parentComment
+            })
+
+            const childCommentSaved = await childComment.save()
+            comment.childComments = comment.childComments.concat(childCommentSaved.id)
+            await comment.save()
+
+            return childCommentSaved
         },
         createUser: async (root, args) => {
             const saltRounds = 10
