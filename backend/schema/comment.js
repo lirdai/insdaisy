@@ -11,14 +11,19 @@ const commentSchema = new mongoose.Schema({
         type: Date, 
         default: Date.now
     },
-    likes: {
-        type: Number,
-        default: 0
-    },
+    likes: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User' 
+         }
+    ],
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+        ref: 'User'
+    },
+    post: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Post'
     }
 })
 

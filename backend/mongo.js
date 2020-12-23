@@ -61,8 +61,9 @@ const typeDefs = gql`
     type Comment {
         content: String!
         updated: String!
-        likes: Int!
+        likes: [User]!
         user: User
+        post: Post
         id: ID!
     }
 
@@ -92,6 +93,22 @@ const typeDefs = gql`
             id: ID!
             likes: [ID]!
         ): Post
+
+        addComment(
+            content: String!
+            user: ID!
+            post: ID!
+        ): Comment
+
+        addCommentLikes(
+            id: ID!
+            likes: [ID]!
+        ): Comment
+
+        removeCommentLikes(
+            id: ID!
+            likes: [ID]!
+        ): Comment
 
         createUser(
             username: String!
@@ -130,6 +147,12 @@ const resolvers = {
     Comment: {
         user(parent) {
             return User.findById(parent.user)
+        },
+        likes(parent) {
+            return parent.likes.map(user => User.findById(user))
+        },
+        post(parent) {
+            return Post.findById(parent.post)
         }
     },
     Mutation: {
@@ -138,6 +161,13 @@ const resolvers = {
             const key = args.key
             const type = args.type
             const timeout = 30
+
+            // AWS Config Here or Shared Config on Windows
+            // AWS.config.update({
+            //     region: 'REGION',
+            //     key: "****",
+            //     accesskey: "****"
+            // })        
 
             const s3 = new AWS.S3({
                 apiVersion: "2006-03-01",
@@ -202,6 +232,54 @@ const resolvers = {
          
             return update
         },  
+        addComment: async (root, args) => {
+            const post = await Post.findById(args.post)
+            const comment = new Comment({
+                content: args.content,
+                user: args.user,
+                post: args.post
+            })
+
+            const savedComment = await comment.save()
+            post.comments = post.comments.concat(savedComment.id)
+            await post.save()
+
+            return savedComment
+        },
+        addCommentLikes: async (root, args) => {
+            const comment = await Comment.findById(args.id)
+
+            const commentSaved = {
+                likes: args.likes
+            }
+
+            await Comment.updateOne({ _id: args.id }, commentSaved)
+
+            const update = {
+                ...comment._doc,
+                likes: args.likes,
+                id: comment._id
+            }
+
+            return update
+        },
+        removeCommentLikes: async (root, args) => {
+            const comment = await Comment.findById(args.id)
+
+            const commentSaved = {
+                likes: args.likes
+            }
+
+            await Comment.updateOne({ _id: args.id }, commentSaved)
+
+            const update = {
+                ...comment._doc,
+                likes: args.likes,
+                id: comment._id
+            }
+
+            return update
+        },
         createUser: async (root, args) => {
             const saltRounds = 10
             const passwordHash = await bcrypt.hash(args.passwordHash, saltRounds)

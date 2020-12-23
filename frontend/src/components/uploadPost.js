@@ -43,9 +43,7 @@ const Upload = ({ handleClose, show, userID, addPost }) => {
         event.target.title.value = ''
     }
 
-    console.log(file)
-    console.log(newFile)
-
+    
     useEffect(() => {
         if (result_url.data && file) {
             const url = result_url.data.s3PreSign.url
