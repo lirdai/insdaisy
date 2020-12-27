@@ -24,6 +24,7 @@ const Upload = ({ handleClose, show, userID, addPost }) => {
     const [ file, setFile ] = useState(null)
     const [ newFile, setNewFile ] = useState(null)
     const [ title, setTitle ] = useState(null)
+    const [ filterRem, setFilterRem ] = useState("brightness(100%) contrast(100%) saturate(100%) grayscale(0%) sepia(0%) hue-rotate(0deg) blur(0px)")
 
     const handleImagePreview = (event) => {
         setFile(event.target.files[0])
@@ -42,12 +43,10 @@ const Upload = ({ handleClose, show, userID, addPost }) => {
 
         event.target.title.value = ''
     }
-
-    
+ 
     useEffect(() => {
         if (result_url.data && file) {
             const url = result_url.data.s3PreSign.url
-
             const uploadFile = newFile ? newFile : file
 
             axios
@@ -58,8 +57,9 @@ const Upload = ({ handleClose, show, userID, addPost }) => {
                 .then(result => {
                     const url = `https://daisy-ins.s3.amazonaws.com/${uploadFile.name}`
                     const user = userID
+                    const filter = filterRem
 
-                    addPost({ variables: { url, title, user } })
+                    addPost({ variables: { url, title, user, filter } })
                     console.log("Upload Successfully")
 
                     setFile(null)
@@ -89,7 +89,11 @@ const Upload = ({ handleClose, show, userID, addPost }) => {
                         
                         <br/><br/><br/>
 
-                        <Filter file={file} setNewFile={setNewFile} />
+                        <Filter 
+                            file={file} 
+                            setNewFile={setNewFile} 
+                            setFilterRem={setFilterRem}
+                        />
                         
                         <textarea type='text' name='title' placeholder='Your comment within 200 words...'></textarea>
                     </Modal.Body>

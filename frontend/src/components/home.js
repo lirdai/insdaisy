@@ -4,6 +4,7 @@ import { useApolloClient } from '@apollo/client'
 import { useMutation, useQuery } from '@apollo/client'
 import Upload from './uploadPost'
 import Reply from './commentReply'
+import DisplayComment from './displayComment'
 import { 
     ALL_POSTS, 
     ADD_POST, 
@@ -35,20 +36,19 @@ const Home = ({ token, setToken, userID, username }) => {
     // useState
     const [ postsAll, setPostsAll ] = useState([])
     const [ commentVisible, setCommentVisible ] = useState({})
+    const [ childCommentVisible, setChildCommentVisible ] = useState({})
     const [ allPostsRender, setAllPostsRender ] = useState(false)
+    const [ followUp, setFollowUp ] = useState(false)
 
     const [ uploadShow, setUploadShow ] = useState(false)
     const handleUploadClose = () => setUploadShow(false)
     const handleUploadShow = () => setUploadShow(true)
 
     const [ replyShow, setReplyShow ] = useState(false)
-    const [ parent_comment, setParentComment ] = useState(null)
+    const [ comment_id, setCommentID ] = useState(null)
+    const [ reply_user, setReplyUser ] = useState(null)
     const handleReplyClose = () => {
         setReplyShow(false)
-    }
-    const handleReplyShow = (id) => {
-        setReplyShow(true)
-        setParentComment(id)
     }
 
 
@@ -72,16 +72,6 @@ const Home = ({ token, setToken, userID, username }) => {
         }
     }
 
-    const handleCommentLikes = (comment) => {
-        const comment_find = comment.likes.find(user => user.id === userID)
-        const likes = comment.likes.map(user => user.id)
-        if (comment_find) {
-            removeCommentLikes({ variables: { id:comment.id, likes:likes.filter(id => id !== userID) } })
-        } else {
-            addCommentLikes({ variables: { id:comment.id, likes:likes.concat(userID) } })
-        }
-    }
-
     const handleDisplayComment = (id) => {
         if (commentVisible[id]) {
             const newCommentVisible = {
@@ -98,16 +88,7 @@ const Home = ({ token, setToken, userID, username }) => {
         }
     }
 
-    const handleAddComment = (event) => {
-        event.preventDefault()
-
-        const content = event.target.content.value
-        const postID = event.target.post_id.value
-
-        addComment({ variables: { content: content, user: userID, post: postID } })
-
-        event.target.content.value = ''
-    }
+    const handleFollow = () => {}
 
 
     // Style
@@ -118,25 +99,40 @@ const Home = ({ token, setToken, userID, username }) => {
     const style = {
         border: 'none',        
         outline: "none",
-        backgroundColor: "white",
+        backgroundColor: "white"
+    }
+
+    const styleFollow = {
+        width: "20px",
+        height: "20px",
+        color: "white",
+        backgroundColor: "red",
+        borderRadius: "50%",
+        display: "grid",
+        justifyContent: "center",
+        alignContent: "center",
+        position: "relative",
+        left: "30%",
+        bottom: "80%"
+    }
+
+    const styleFollowDisappear = {
+        display: "none",
     }
 
     const styleHeartRed = {
         border: 'none',
         outline: 'none',
         color: "red",
-        backgroundColor: "white",
+        backgroundColor: "white"
     }
 
     const styleHeartBlack = {
         border: 'none',
         outline: 'none',
         color: "black",
-        backgroundColor: "white",
+        backgroundColor: "white"
     } 
-
-    const hideWhenVisible = { display: 'none'}
-    const showWhenVisible = { display: ''}
 
 
     // useEffect
@@ -149,7 +145,10 @@ const Home = ({ token, setToken, userID, username }) => {
                 accumulator[currentValue.id] = false
                 return accumulator
             }, {}))
-
+            setChildCommentVisible(posts.data.allPosts.reduce((accumulator, currentValue) => {
+                currentValue.comments.map(comment => accumulator[comment.id] = false)
+                return accumulator
+            }, {}))
             setAllPostsRender(true)
         }
     }, [posts.data])
@@ -201,6 +200,12 @@ const Home = ({ token, setToken, userID, username }) => {
                     comments: post.comments.concat(result_comment.data.addComment)
                 }
                 : post ))
+
+            let newChildCommentVisible = {
+                ...childCommentVisible
+            }
+            newChildCommentVisible[result_comment.data.addComment.id] = false
+            setChildCommentVisible(newChildCommentVisible)  
         }
     }, [result_comment.data])
 
@@ -243,13 +248,31 @@ const Home = ({ token, setToken, userID, username }) => {
     // Child Comment
     useEffect(() => {
         if (result_childComment.data) {
-            console.log(result_childComment.data.addChildComment)
+            // console.log(result_childComment.data.addChildComment)
+            const postUpdated = postsAll.find(post => post.comments.find(comment =>
+                comment.id === result_childComment.data.addChildComment.parentComment.id
+            ))
+
+            setPostsAll(postsAll => postsAll.map(post => post.id === postUpdated.id
+                ? {
+                    ...post,
+                    comments: post.comments.map(comment => comment.id === result_childComment.data.addChildComment.parentComment.id
+                        ? {
+                            ...comment,
+                            childComments: comment.childComments.concat(result_childComment.data.addChildComment)
+                        }
+                        : comment
+                    )
+                }
+                : post
+            ))
         }
     }, [result_childComment.data]) 
 
-
+    // console.log(childCommentVisible)
     // console.log(commentVisible)
-    console.log(postsAll)
+    // console.log(reply_user)
+    // console.log(postsAll)
     return (
         <div className='home'>
             {/* Navbar  +++  Footer*/}
@@ -266,7 +289,8 @@ const Home = ({ token, setToken, userID, username }) => {
                         {token === null
                             ? <div>Please log in to add post!</div>
                             : <div>
-                                <button style={styleBorder} onClick={handleUploadShow}><i className="fas fa-edit fa-2x"></i>
+                                <button style={styleBorder} onClick={handleUploadShow}>
+                                    <i className="fas fa-edit fa-2x"></i>
                                 </button>
                             </div>
                         }
@@ -274,13 +298,15 @@ const Home = ({ token, setToken, userID, username }) => {
                     
                     <div className='nav-login'> 
                         <Link to="/login">
-                            <button style={styleBorder}><i className="fas fa-user-plus fa-2x"></i>
+                            <button style={styleBorder}>
+                                <i className="fas fa-user-plus fa-2x"></i>
                             </button>
                         </Link>
                     </div>
 
                     <div className='nav-logout'> 
-                        <button style={styleBorder} className='px-2' onClick={logout}><i className="fas fa-sign-out-alt fa-2x"></i>
+                        <button style={styleBorder} className='px-2' onClick={logout}>
+                            <i className="fas fa-sign-out-alt fa-2x"></i>
                         </button>
                     </div>
 
@@ -302,7 +328,7 @@ const Home = ({ token, setToken, userID, username }) => {
                                 <div key={post.id}>
                                     <div className='onePost mb-5'>
                                         <div className="img-user-title-date">
-                                            <img className='p-3' src={post.url} alt={`not display ${post.id}`} />
+                                            <img style={{ filter: `${post.filter}` }} className='p-3' src={post.url} alt={`not display ${post.id}`} />
                                             <h5>@ {post.user.username}</h5>
                                             <h5><b>{post.title}</b></h5>
                                             <small>{new Date(parseInt(post.updated)).toLocaleString()}</small>
@@ -311,6 +337,9 @@ const Home = ({ token, setToken, userID, username }) => {
                                         <div className="avatar-fontawesome">
                                             <div className='avatar-img-main-position'>
                                                 <img src={post.user.avatar} alt={`avatar not display ${post.id}`} width="50px" height="50px" className='avatar-img-main'/>
+                                                <span style={followUp ? styleFollowDisappear : styleFollow} onClick={handleFollow}>
+                                                    <i className="fas fa-plus"></i>
+                                                </span>
                                             </div>
 
                                             <button style={post.likes.find(user => user.id === userID) ? styleHeartRed : styleHeartBlack} onClick={() => handlePostLikes(post)}>
@@ -325,62 +354,24 @@ const Home = ({ token, setToken, userID, username }) => {
                                         </div>
                                     </div>
 
-                                    {/* Display Comment */}
-                                    <div style={commentVisible[post.id] ? showWhenVisible : hideWhenVisible}>
-                                        {post.comments.map(comment => 
-                                            <div key={comment.id} className="post-comment">
-                                                <div>
-                                                    <img src={comment.user.avatar} alt={`avatar not display ${comment.id}`} width="30px" height="30px" className='avatar-img-main'/>
-                                                </div>
-                                               
-                                                <div>
-                                                    <p><b>{comment.user.username}</b></p>
-                                                    <p>{comment.content}</p>
-
-                                                    <div>
-                                                        <div className='comment-date-reply'>
-                                                            <p>{new Date(parseInt(comment.updated)).toLocaleString()}</p>
-                                                            <button style={style} onClick={() => handleReplyShow(comment.id)}>Reply</button>
-                                                        </div>
-
-                                                        {/* Display Child Comment */}
-                                                        {comment.childComments.map(child => 
-                                                            <div key={child.id}>
-                                                                <div>
-                                                                    <img src={child.user.avatar} alt={`avatar not display ${child.id}`} width="30px" height="30px" className='avatar-img-main' />
-                                                                </div>
-
-                                                                <div>
-                                                                    <p><b>{child.user.username}</b></p>
-                                                                    <p>{child.content}</p>
-
-                                                                    <div>
-                                                                        <p>{new Date(parseInt(child.updated)).toLocaleString()}</p>
-                                                                        <button style={style}>Reply</button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        )} 
-                                                    </div>
-                                                </div>
-                                                
-                                                <div>
-                                                    <button style={comment.likes.find(user => user.id === userID) ? styleHeartRed : styleHeartBlack} onClick={() => handleCommentLikes(comment)}>
-                                                        <i className="far fa-heart fa-2x"></i>
-                                                        <b>{comment.likes.length}</b>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        )}
-                                        
-                                        <form className="comment-form m-5" onSubmit={handleAddComment}>
-                                            <input type='hidden' name='post_id' value={post.id} />
-                                            <input type='text' name='content' />
-                                            <button style={style} type='submit'>
-                                                <i className="fas fa-share fa-2x"></i>
-                                            </button>
-                                        </form>
-                                    </div>
+                                    <DisplayComment 
+                                        post={post}       
+                                        userID={userID}
+                                        postsAll={postsAll}
+                                        commentVisible={commentVisible}
+                                        childCommentVisible={childCommentVisible}
+                                        setPostsAll={setPostsAll}
+                                        setChildCommentVisible={setChildCommentVisible}
+                                        setReplyShow={setReplyShow}
+                                        setCommentID={setCommentID}
+                                        setReplyUser={setReplyUser}
+                                        removeCommentLikes={removeCommentLikes}
+                                        addCommentLikes={addCommentLikes}
+                                        addComment={addComment}
+                                        style={style}
+                                        styleHeartRed={styleHeartRed}
+                                        styleHeartBlack={styleHeartBlack}
+                                    />
                                 </div>
                             )}
                         </div>
@@ -398,7 +389,8 @@ const Home = ({ token, setToken, userID, username }) => {
                         show={replyShow}
                         userID={userID}
                         addChildComment={addChildComment}
-                        parent_comment={parent_comment}
+                        comment_id={comment_id}
+                        reply_user={reply_user}
                     />   
                 </div>
             </div>

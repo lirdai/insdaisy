@@ -21,6 +21,10 @@ const childCommentSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
+    replyTo: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
     parentComment: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Comment'

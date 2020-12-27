@@ -3,16 +3,17 @@ import { Button, Modal } from 'react-bootstrap'
 
 
 
-const Reply = ({ show, handleClose, userID, addChildComment, parent_comment }) => {
+const Reply = ({ show, handleClose, userID, addChildComment, comment_id, reply_user }) => {
    
     const handleSubmit = (event) => {
         event.preventDefault()
 
         const content = event.target.childComment.value
         const user = userID
-        const parentComment = parent_comment
-  
-        addChildComment({ variables: { content, user, parentComment } })
+        const parentComment = comment_id
+        const replyTo = reply_user
+
+        addChildComment({ variables: { content, user, parentComment, replyTo } })
 
         event.target.childComment.value = ''
     }

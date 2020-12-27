@@ -6,6 +6,7 @@ export const ALL_POSTS = gql`
 query {
     allPosts {
         url
+        filter
         title
         updated
         likes {
@@ -25,6 +26,7 @@ query {
             user {
                 username
                 avatar
+                id
             }
             post {
                 id
@@ -38,6 +40,10 @@ query {
                 user {
                     username
                     avatar
+                    id
+                }
+                replyTo {
+                    username
                 }
                 parentComment {
                   id
@@ -50,13 +56,15 @@ query {
 }`
 
 export const ADD_POST = gql`
-mutation addPost($url: String!, $title: String!, $user: ID!) {
+mutation addPost($url: String!, $filter: String!, $title: String!, $user: ID!) {
     addPost(
         url: $url
+        filter: $filter
         title: $title
         user: $user
     ) {
         url
+        filter
         title
         updated
         likes {
@@ -66,6 +74,7 @@ mutation addPost($url: String!, $title: String!, $user: ID!) {
         user {
             username
             avatar
+            id
         }
         comments {
             content
@@ -76,6 +85,7 @@ mutation addPost($url: String!, $title: String!, $user: ID!) {
             user {
                 username
                 avatar
+                id
             }
             post {
                 id
@@ -89,6 +99,9 @@ mutation addPost($url: String!, $title: String!, $user: ID!) {
                 user {
                     username
                     avatar
+                }
+                replyTo {
+                    username
                 }
                 parentComment {
                   id
@@ -107,6 +120,7 @@ mutation addPostLikes($id: ID!, $likes: [ID]!) {
         likes: $likes
     ) {
         url
+        filter
         title
         updated
         likes {
@@ -116,6 +130,7 @@ mutation addPostLikes($id: ID!, $likes: [ID]!) {
         user {
             username
             avatar
+            id
         }
         comments {
             content
@@ -126,6 +141,7 @@ mutation addPostLikes($id: ID!, $likes: [ID]!) {
             user {
                 username
                 avatar
+                id
             }
             post {
                 id
@@ -139,6 +155,9 @@ mutation addPostLikes($id: ID!, $likes: [ID]!) {
                 user {
                     username
                     avatar
+                }
+                replyTo {
+                    username
                 }
                 parentComment {
                   id
@@ -157,6 +176,7 @@ mutation removePostLikes($id: ID!, $likes: [ID]!) {
         likes: $likes
     ) {
         url
+        filter
         title
         updated
         likes {
@@ -166,6 +186,7 @@ mutation removePostLikes($id: ID!, $likes: [ID]!) {
         user {
             username
             avatar
+            id
         }
         comments {
             content
@@ -176,6 +197,7 @@ mutation removePostLikes($id: ID!, $likes: [ID]!) {
             user {
                 username
                 avatar
+                id
             }
             post {
                 id
@@ -189,6 +211,9 @@ mutation removePostLikes($id: ID!, $likes: [ID]!) {
                 user {
                     username
                     avatar
+                }
+                replyTo {
+                    username
                 }
                 parentComment {
                   id
@@ -215,6 +240,7 @@ mutation addComment($content: String!, $user: ID!, $post: ID!) {
         user {
             username
             avatar
+            id
         }
         post {
             id
@@ -228,6 +254,10 @@ mutation addComment($content: String!, $user: ID!, $post: ID!) {
             user {
                 username
                 avatar
+                id
+            }
+            replyTo {
+                username
             }
             parentComment {
               id
@@ -252,6 +282,7 @@ mutation addCommentLikes($id: ID!, $likes: [ID]!) {
         user {
             username
             avatar
+            id
         }
         post {
             id
@@ -265,6 +296,10 @@ mutation addCommentLikes($id: ID!, $likes: [ID]!) {
             user {
                 username
                 avatar
+                id
+            }
+            replyTo {
+                username
             }
             parentComment {
               id
@@ -289,6 +324,7 @@ mutation removeCommentLikes($id: ID!, $likes: [ID]!) {
         user {
             username
             avatar
+            id
         }
         post {
             id
@@ -302,6 +338,10 @@ mutation removeCommentLikes($id: ID!, $likes: [ID]!) {
             user {
                 username
                 avatar
+                id
+            }
+            replyTo {
+                username
             }
             parentComment {
               id
@@ -313,10 +353,11 @@ mutation removeCommentLikes($id: ID!, $likes: [ID]!) {
 }`
 
 export const ADD_CHILD_COMMENT = gql`
-mutation addChildComment($content: String!, $user: ID!, $parentComment: ID!) {
+mutation addChildComment($content: String!, $user: ID!, $parentComment: ID!, $replyTo: ID!) {
     addChildComment(
         content: $content
         user: $user
+        replyTo: $replyTo
         parentComment: $parentComment
     ) {
         content
@@ -327,6 +368,62 @@ mutation addChildComment($content: String!, $user: ID!, $parentComment: ID!) {
         user {
             username
             avatar
+            id
+        }
+        replyTo {
+            username
+        }
+        parentComment {
+            id
+        }
+        id
+    }
+}`
+
+export const ADD_CHILD_COMMENT_LIKES = gql`
+mutation addChildCommentLikes($id: ID!, $likes: [ID]!) {
+    addChildCommentLikes(
+        id: $id
+        likes: $likes
+    ) {
+        content
+        updated
+        likes {
+            id
+        }
+        user {
+            username
+            avatar
+            id
+        }
+        replyTo {
+            username
+        }
+        parentComment {
+            id
+        }
+        id
+    }
+}`
+
+export const REMOVE_CHILD_COMMENT_LIKES = gql`
+mutation removeChildCommentLikes($id: ID!, $likes: [ID]!) {
+    removeChildCommentLikes(
+        id: $id
+        likes: $likes
+    ) {
+        content
+        updated
+        likes {
+            id
+        }
+        user {
+            username
+            avatar
+            id
+        }
+        replyTo {
+            username
         }
         parentComment {
             id

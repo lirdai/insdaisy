@@ -39,8 +39,16 @@ const client = new ApolloClient({
           },
         },
       },
+      ChildComment: {
+        fields: {
+          likes: {
+            merge(existing, incoming) {
+              return incoming
+          },
+        },
+      },
     },
-  }),
+  }}),
   link: new HttpLink({
     uri: 'http://localhost:4000',
   })

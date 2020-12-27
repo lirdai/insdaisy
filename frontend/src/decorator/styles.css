@@ -34,6 +34,7 @@
 
 .avatar-img-main-position {
     display: grid;
+    grid-template-rows: auto auto;
     justify-content: center;
     align-content: center;
 }
@@ -65,11 +66,12 @@ input[type='range'] {
 
 .comment-date-reply {
     display: grid;
-    grid-template-columns: auto auto;
+    grid-template-columns: auto auto auto;
 }
 
 /* Display Comment */
 .post-comment {
+    margin-top: 20px;
     display: grid;
     grid-template-columns: 10% 80% 10%;
 }

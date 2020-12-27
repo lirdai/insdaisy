@@ -45,12 +45,14 @@ const typeDefs = gql`
         username: String!
         avatar: String!
         passwordHash: String!
+        friends: User
         posts: [Post]!
         id: ID!
     }
 
     type Post {
         url: String!
+        filter: String!
         title: String!
         updated: String!
         likes: [User]!
@@ -74,6 +76,7 @@ const typeDefs = gql`
         updated: String!
         likes: [User]!
         user: User
+        replyTo: User
         parentComment: Comment
         id: ID!
     }
@@ -91,6 +94,7 @@ const typeDefs = gql`
 
         addPost(
             url: String!
+            filter: String!
             title: String!
             user: ID!
         ): Post
@@ -124,7 +128,18 @@ const typeDefs = gql`
         addChildComment(
             content: String!
             user: ID!
+            replyTo: ID!
             parentComment: ID!
+        ): ChildComment
+        
+        addChildCommentLikes(
+            id: ID!
+            likes: [ID]!
+        ): ChildComment
+
+        removeChildCommentLikes(
+            id: ID!
+            likes: [ID]!
         ): ChildComment
 
         createUser(
@@ -132,7 +147,7 @@ const typeDefs = gql`
             avatar: String!
             passwordHash: String!
         ): User
-          
+        
         login(
             username: String!
             passwordHash: String!
@@ -148,6 +163,9 @@ const resolvers = {
     User: {
         posts(parent) {
             return parent.posts.map(post => Post.findById(post))
+        },
+        friends(parent) {
+            return parent.friends.map(friend => User.findById(friend))
         }
     },
     Post: {
@@ -178,6 +196,9 @@ const resolvers = {
     ChildComment: {
         user(parent) {
             return User.findById(parent.user)
+        },
+        replyTo(parent) {
+            return User.findById(parent.replyTo)
         },
         likes(parent) {
             return parent.likes.map(user => User.findById(user))
@@ -219,10 +240,11 @@ const resolvers = {
 
             const post = new Post({
                 url: args.url,
+                filter: args.filter,
                 title: args.title,
                 user: args.user
             })
-
+        
             const savedPost = await post.save()
             user.posts = user.posts.concat(savedPost.id)
             await user.save()
@@ -317,6 +339,7 @@ const resolvers = {
             const childComment = new ChildComment({
                 content: args.content,
                 user: args.user,
+                replyTo: args.replyTo,
                 parentComment: args.parentComment
             })
 
@@ -325,6 +348,40 @@ const resolvers = {
             await comment.save()
 
             return childCommentSaved
+        },
+        addChildCommentLikes: async (root, args) => {
+            const childComment = await ChildComment.findById(args.id)
+
+            const childCommentSaved = {
+                likes: args.likes
+            }
+
+            await ChildComment.updateOne({ _id: args.id }, childCommentSaved)
+
+            const update = {
+                ...childComment._doc,
+                likes: args.likes,
+                id: childComment._id
+            }
+
+            return update
+        },
+        removeChildCommentLikes: async (root, args) => {
+            const childComment = await ChildComment.findById(args.id)
+
+            const childCommentSaved = {
+                likes: args.likes
+            }
+
+            await ChildComment.updateOne({ _id: args.id }, childCommentSaved)
+
+            const update = {
+                ...childComment._doc,
+                likes: args.likes,
+                id: childComment._id
+            }
+
+            return update
         },
         createUser: async (root, args) => {
             const saltRounds = 10

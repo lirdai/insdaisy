@@ -78,7 +78,7 @@ const DEFAULT_OPTIONS = [
 
 
 
-const Filter = ({ file, setNewFile }) => {
+const Filter = ({ file, setNewFile, setFilterRem }) => {
     const [ options, setOptions ] = useState(DEFAULT_OPTIONS)
     const [ selectedOptionIndex, setSelectedOptionIndex ] = useState(0)
     const [ newSrc, setNewSrc ] = useState(null)
@@ -102,7 +102,7 @@ const Filter = ({ file, setNewFile }) => {
         const filters = options.map(option => {
             return `${option.property}(${option.value}${option.unit})`
         })
-
+        
         return { filter: filters.join(' ') }
     }
 
@@ -110,7 +110,6 @@ const Filter = ({ file, setNewFile }) => {
     const style_hidden = {
         display: 'none'
     }
-
 
 
     // IMAGE FILTER PROCESS
@@ -134,8 +133,10 @@ const Filter = ({ file, setNewFile }) => {
     // When filter changes, image changes as well
     const handleAdvancedFilter = (event) => { 
         if (event.target.value !== "none") {
+            console.log(event.target.value)
             setFilter(() => LenaJS[event.target.value])
         } else {
+            console.log("reset none")
             setFilter(null)
             setNewFile(null)
             setCanvasUsed(false)
@@ -159,12 +160,15 @@ const Filter = ({ file, setNewFile }) => {
                     type: "image/jpeg"
                 })
                 setNewFile(new_file)
+                console.log(new_file)
             }, "image/jpeg", 0.5)
         }
-    }, [canvasUsed, file])
+    }, [canvasUsed, file, filteredImageCanvas])
 
-
-
+    
+    useEffect(() => {
+        setFilterRem(getImageStyle().filter)
+    }, [selectedOption])
     return (
         <div>
             <img 
@@ -227,7 +231,6 @@ const Filter = ({ file, setNewFile }) => {
                 <option value="thresholding">thresholding</option>
             </select>
         </div>
-        
     )
 }
 
