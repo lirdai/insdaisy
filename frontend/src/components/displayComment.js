@@ -1,5 +1,6 @@
 import React from 'react'
 import DisplayChildComment from './displayChildComment'
+import { Link } from "react-router-dom"
 
 
 
@@ -74,7 +75,9 @@ const DisplayComment = ({
                 {post.comments.map(comment => 
                     <div key={comment.id} className="post-comment">
                         <div>
-                            <img src={comment.user.avatar} alt={`avatar not display ${comment.id}`} width="30px" height="30px" className='avatar-img-main'/>
+                            <Link to={`/user/${comment.user.id}`}>
+                                <img src={comment.user.avatar} alt={`avatar not display ${comment.id}`} width="30px" height="30px" className='avatar-img-main'/>
+                            </Link>
                         </div>
                         
                         <div>

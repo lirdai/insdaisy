@@ -7,19 +7,37 @@ import { useParams } from "react-router-dom"
 const FIND_USER = gql`
 query findUser($id: ID!) {
   findUser(id: $id) {
+    username
     avatar
     posts {
         url
+        filter
         title
         updated
         likes {
-            username
+            id
+        }
+        comments {
+            content
+            updated
+            likes {
+                id
+            }
+            childComments {
+                content
+                updated
+                likes {
+                    id
+                }
+                replyTo {
+                    id
+                }
+            }
         }
         id
     }
   }
-}
-`
+}`
 
 
 
@@ -30,8 +48,10 @@ const User = () => {
     const [ userinfo, setUserInfo ] = useState(null)
 
     useEffect(() => {
-        findUser({ variables:  { id: ID } })
-    }, [])
+        if (ID !== null) {
+            findUser({ variables:  { id: ID } })
+        }
+    }, [ID])
 
     useEffect(() => {
         if (result_user.data) {
@@ -41,11 +61,11 @@ const User = () => {
 
 
     return (
-        <div>
+        <div>  
             {userinfo
                 ? <div>
                     {/* User Information */}
-                    <div>
+                    <div className="userinfo-avatar-button p-5">
                         <img 
                             src={userinfo.avatar} 
                             alt={userinfo.id} 
@@ -53,12 +73,27 @@ const User = () => {
                             height="100" 
                             className='avatar-img'
                         />
-                        <button>Reset Password</button>
+
+                        <h4>Hello, {userinfo.username}</h4>
                     </div>
                     
                     {/* Display Posts */}
                     <div>
-                        <h1>Display Posts</h1>
+                        <h6 className='my-5'>{userinfo.posts.length} Post(s)</h6>
+
+                        <div className='grid-userinfo-posts'>
+                            {userinfo.posts.map(post =>
+                                <div key={post.id}>
+                                    <img 
+                                        style={{ filter: `${post.filter}` }}
+                                        src={post.url}
+                                        width="500" 
+                                        height="300" 
+                                        alt={`imagenotdisplay ${post.id}`}
+                                    />
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
                 : <div>Loading...</div>

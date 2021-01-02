@@ -45,7 +45,7 @@ const typeDefs = gql`
         username: String!
         avatar: String!
         passwordHash: String!
-        friends: User
+        friends: [User]!
         posts: [Post]!
         id: ID!
     }
@@ -83,7 +83,7 @@ const typeDefs = gql`
 
     type Query {
         allPosts: [Post!]!
-        findUser(id: ID!): User!
+        findUser(id: ID): User!
     }
 
     type Mutation {
@@ -146,6 +146,16 @@ const typeDefs = gql`
             username: String!
             avatar: String!
             passwordHash: String!
+        ): User
+
+        addFriend(
+            id: ID!
+            friends: [ID]!
+        ): User
+
+        removeFriend(
+            id: ID!
+            friends: [ID]!
         ): User
         
         login(
@@ -397,6 +407,40 @@ const resolvers = {
                 .catch(error => {
                 throw new UserInputError(error)
             })
+        },
+        addFriend: async (root, args) => {
+            const user = await User.findById(args.id)
+
+            const userSaved = {
+                friends: args.friends
+            }
+
+            await User.updateOne({ _id: args.id }, userSaved)
+
+            const update = {
+                ...user._doc,
+                friends: args.friends,
+                id: user._id
+            }
+
+            return update 
+        },
+        removeFriend: async (root, args) => {
+            const user = await User.findById(args.id)
+
+            const userSaved = {
+                friends: args.friends
+            }
+
+            await User.updateOne({ _id: args.id }, userSaved)
+
+            const update = {
+                ...user._doc,
+                friends: args.friends,
+                id: user._id
+            }
+
+            return update 
         },
         login: async (root, args) => {
             const user = await User.findOne({ username: args.username })

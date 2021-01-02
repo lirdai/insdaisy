@@ -2,6 +2,8 @@
     box-sizing: border-box;
 }
 
+
+
 /* Home Page */
 .nav-user, .nav-login, .nav-post, .nav-logout{
     margin-top: 500px;
@@ -10,17 +12,12 @@
     justify-content: center;
 } 
 
-.footer {
-    text-align: center;
-    margin-top: 80%;
-    font-size: medium;
-    font-weight: bold;
-} 
-
 .content {
     display: grid;
     margin-top: 50px;
 }
+
+
 
 /* Display Post */
 .avatar-fontawesome {
@@ -69,6 +66,8 @@ input[type='range'] {
     grid-template-columns: auto auto auto;
 }
 
+
+
 /* Display Comment */
 .post-comment {
     margin-top: 20px;
@@ -82,17 +81,53 @@ input[type='range'] {
     grid-template-columns: 80% 20%;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 992px) {
     .home {
         display: grid;
-        grid-template-columns: 240px 600px;
+        grid-template-columns: 15% auto;
         grid-column-gap: 15%;
     }
     
     .navbar {
         background-color: #f1f1f1;
         position: fixed;
-        width: 240px;
+        width: 220px;
+        height: 100%;
+        display: grid;
+        grid-template-rows: 30px 30px 30px 30px;
+        grid-row-gap: 30px;
+        justify-content: center;
+    }
+
+    .onePost {
+        display: grid;
+        grid-template-columns: 35% 65%;
+    }
+
+    .img-user-title-date img {
+        max-width: 450px;
+        height: 300px;
+    }
+
+    .footer {
+        text-align: center;
+        margin-top: 80%;
+        font-size: medium;
+        font-weight: bold;
+    } 
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .home {
+        display: grid;
+        grid-template-columns: 15% auto;
+        grid-column-gap: 15%;
+    }
+    
+    .navbar {
+        background-color: #f1f1f1;
+        position: fixed;
+        width: 220px;
         height: 100%;
         display: grid;
         grid-template-rows: 30px 30px 30px 30px;
@@ -109,19 +144,30 @@ input[type='range'] {
         max-width: 450px;
         height: 300px;
     }
+
+    .footer {
+        text-align: center;
+        margin-top: 80%;
+        font-size: medium;
+        font-weight: bold;
+    } 
 }
 
 @media (max-width: 767px) and (min-width: 576px) {
     .home {
         display: grid;
-        grid-template-columns: 150px auto;
-        grid-column-gap: 15%;
+        grid-template-columns: 8% auto;
+        grid-column-gap: 10%;
     }
     
+    .welcome, .footer {
+        display: none;
+    }
+
     .navbar {
         background-color: #f1f1f1;
         position: fixed;
-        width: 150px;
+        width: 80px;
         height: 100%;
         display: grid;
         grid-template-rows: 30px 30px 30px 30px;
@@ -131,26 +177,30 @@ input[type='range'] {
 
     .onePost {
         display: grid;
-        grid-template-columns: 70% 30%;
+        grid-template-columns: 60% 40%;
     }
 
     .img-user-title-date img {
-        max-width: 300px;
-        height: 150px;
+        max-width: 360px;
+        height: 250px;
     }
 }
 
 @media (max-width: 575px) {
     .home {
         display: grid;
-        grid-template-columns: 150px auto;
-        grid-column-gap: 15%;
+        grid-template-columns: 10% auto;
+        grid-column-gap: 20%;
     }
-    
+
+    .welcome, .footer {
+        display: none;
+    }
+
     .navbar {
         background-color: #f1f1f1;
         position: fixed;
-        width: 150px;
+        width: 70px;
         height: 100%;
         display: grid;
         grid-template-rows: 30px 30px 30px 30px;
@@ -160,12 +210,16 @@ input[type='range'] {
 
     .onePost {
         display: grid;
-        grid-template-columns: 80% 20%;
+        grid-template-columns: 100%;
     }
 
     .img-user-title-date img {
-        max-width: 250px;
-        height: 100px;
+        max-width: 300px;
+        height: 200px;
+    }
+
+    .avatar-fontawesome {
+        display: none;
     }
 }
 
@@ -175,7 +229,7 @@ input[type='range'] {
 .login-bigger {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-content: center;
     margin-top: 200px;
 }
 
@@ -247,6 +301,30 @@ input[type='range'] {
 
 /* User Page */
 .avatar-img {
-    margin: 80px;
+    margin-top: 50px;
+    margin-bottom: 50px;
     border-radius: 50%;
+}
+
+@media (min-width: 576px) {
+    .grid-userinfo-posts {
+        display: grid;
+        grid-template-rows: auto;
+        grid-gap: 50px;
+        justify-content: center;
+        align-content: center; 
+    }
+}
+
+@media (max-width: 575px) {
+    .grid-userinfo-posts {
+        display: grid;
+        grid-template-rows: auto;
+        grid-gap: 50px;
+    }
+
+    .grid-userinfo-posts img {
+        max-width: 300px;
+        height: 150px;
+    }
 }

@@ -93,6 +93,7 @@ const Upload = ({ handleClose, show, userID, addPost }) => {
                             file={file} 
                             setNewFile={setNewFile} 
                             setFilterRem={setFilterRem}
+                            newFile={newFile}
                         />
                         
                         <textarea type='text' name='title' placeholder='Your comment within 200 words...'></textarea>

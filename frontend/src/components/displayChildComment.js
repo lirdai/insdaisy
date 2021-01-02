@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { useMutation } from '@apollo/client'
 import { ADD_CHILD_COMMENT_LIKES, REMOVE_CHILD_COMMENT_LIKES } from './queries'
+import { Link } from "react-router-dom"
 
 
 
@@ -97,7 +98,9 @@ const DisplayChildComment = ({
             {comment.childComments.map(child => 
                 <div key={child.id} className="post-comment">
                     <div>
-                        <img src={child.user.avatar} alt={`avatar not display ${child.id}`} width="30px" height="30px" className='avatar-img-main' />
+                        <Link to={`/user/${child.user.id}`}>
+                            <img src={child.user.avatar} alt={`avatar not display ${child.id}`} width="30px" height="30px" className='avatar-img-main' />
+                        </Link>
                     </div>
 
                     <div>

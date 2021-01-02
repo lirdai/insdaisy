@@ -18,7 +18,7 @@ mutation login($username: String!, $passwordHash: String!) {
 
 
 
-const Login = ({ setToken, setUsername, setUserID }) => {
+const Login = ({ setToken, setUsername, setUserID, setFriendLists }) => {
     const [ login, result_login ] = useMutation(LOGIN)
 
     const handleSubmit = (event) => {

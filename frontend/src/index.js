@@ -44,10 +44,19 @@ const client = new ApolloClient({
           likes: {
             merge(existing, incoming) {
               return incoming
+            },
           },
         },
       },
-    },
+      User: {
+        fields: {
+          friends: {
+            merge(existing, incoming) {
+              return incoming
+            },
+          },
+        },
+      },
   }}),
   link: new HttpLink({
     uri: 'http://localhost:4000',

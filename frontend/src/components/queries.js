@@ -16,6 +16,10 @@ query {
         user {
             username
             avatar
+            friends {
+                id
+            }
+            id
         }
         comments {
             content
@@ -74,6 +78,9 @@ mutation addPost($url: String!, $filter: String!, $title: String!, $user: ID!) {
         user {
             username
             avatar
+            friends {
+                id
+            }
             id
         }
         comments {
@@ -130,6 +137,9 @@ mutation addPostLikes($id: ID!, $likes: [ID]!) {
         user {
             username
             avatar
+            friends {
+                id
+            }
             id
         }
         comments {
@@ -186,6 +196,9 @@ mutation removePostLikes($id: ID!, $likes: [ID]!) {
         user {
             username
             avatar
+            friends {
+                id
+            }
             id
         }
         comments {
@@ -426,6 +439,57 @@ mutation removeChildCommentLikes($id: ID!, $likes: [ID]!) {
             username
         }
         parentComment {
+            id
+        }
+        id
+    }
+}`
+
+export const FIND_USER = gql`
+query findUser($id: ID!) {
+    findUser(id: $id) {
+        username
+        avatar
+        friends {
+            id
+        }
+        posts {
+            id
+        }
+        id
+    }
+}`
+
+export const ADD_FRIEND = gql`
+mutation addFriend($id: ID!, $friends: [ID]!) {
+    addFriend(
+        id: $id
+        friends: $friends
+    ) {
+        username
+        avatar
+        friends {
+            id
+        }
+        posts {
+            id
+        }
+        id
+    }
+}`
+
+export const REMOVE_FRIEND = gql`
+mutation removeFriend($id: ID!, $friends: [ID]!) {
+    removeFriend(
+        id: $id
+        friends: $friends
+    ) {
+        username
+        avatar
+        friends {
+            id
+        }
+        posts {
             id
         }
         id

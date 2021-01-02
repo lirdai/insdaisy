@@ -79,14 +79,10 @@ const DEFAULT_OPTIONS = [
 
 
 const Filter = ({ file, setNewFile, setFilterRem }) => {
+    // CSS FILTER
     const [ options, setOptions ] = useState(DEFAULT_OPTIONS)
     const [ selectedOptionIndex, setSelectedOptionIndex ] = useState(0)
-    const [ newSrc, setNewSrc ] = useState(null)
-    const [ filter, setFilter ] = useState(null)
-    const [ onLoad, setOnLoad ] = useState(false)
-    const [ canvasUsed, setCanvasUsed ] = useState(false)
     const selectedOption = options[selectedOptionIndex]
-
 
     const handleSliderChange = (event) => {
         setOptions(preOptions => {
@@ -97,7 +93,6 @@ const Filter = ({ file, setNewFile, setFilterRem }) => {
         })
     }
 
-
     const getImageStyle = () => {
         const filters = options.map(option => {
             return `${option.property}(${option.value}${option.unit})`
@@ -106,69 +101,49 @@ const Filter = ({ file, setNewFile, setFilterRem }) => {
         return { filter: filters.join(' ') }
     }
 
-
     const style_hidden = {
         display: 'none'
     }
 
+    useEffect(() => {
+        setFilterRem(getImageStyle().filter)
+    }, [selectedOption])
 
-    // IMAGE FILTER PROCESS
-    // Get the image
+
+    // ADVANCED FITLER 
+    // img tag async, and canvas tag sync
+    // Upload Image
+    const [ newSrc, setNewSrc ] = useState(null)
+    const [ filter, setFilter ] = useState(null)
     const originalImage = document.getElementById("original-image")
-    // The canvas where the processed image will be rendered (With filter)
     const filteredImageCanvas = document.getElementById("filtered-canvas")
-    // Apply the initial filter
+    
     const handleOnLoad = () => {
-        setOnLoad(true)
-
-        // Show new Canvas image
         if (filter) {
             LenaJS.filterImage(filteredImageCanvas, filter, originalImage)
             setNewSrc(filteredImageCanvas.toDataURL(file.type))
-            setCanvasUsed(true)
-        }
-    }
 
-    // Filter Change
-    // When filter changes, image changes as well
-    const handleAdvancedFilter = (event) => { 
-        if (event.target.value !== "none") {
-            console.log(event.target.value)
-            setFilter(() => LenaJS[event.target.value])
-        } else {
-            console.log("reset none")
-            setFilter(null)
-            setNewFile(null)
-            setCanvasUsed(false)
-        }
-    }
-
-    // When file uploaded but filter doesn't exist, show original image
-    useEffect(() => {
-        if (file && onLoad) {
-            if (!filter) {
-                setNewSrc(URL.createObjectURL(file))
-            }
-        }
-    }, [file, filter, onLoad])
-
-    // When filter used, Upload new file to AWS
-    useEffect(() => {   
-        if (canvasUsed) {
             filteredImageCanvas.toBlob(function(blob) {
                 const new_file = new File([blob], file.name, {
                     type: "image/jpeg"
                 })
                 setNewFile(new_file)
-                console.log(new_file)
             }, "image/jpeg", 0.5)
         }
-    }, [canvasUsed, file, filteredImageCanvas])
+    }
 
-    
-    useEffect(() => {
-        setFilterRem(getImageStyle().filter)
-    }, [selectedOption])
+    // Add or Change Filter(filter or none)
+    const handleAdvancedFilter = (event) => { 
+        if (event.target.value !== "none") {
+            setFilter(() => LenaJS[event.target.value])
+        } else {
+            setNewSrc(null)
+            setFilter(null)
+            setNewFile(null)
+        }
+    }
+
+
     return (
         <div>
             <img 
@@ -182,7 +157,7 @@ const Filter = ({ file, setNewFile, setFilterRem }) => {
             <img
                 id="filtered-image"
                 width="100%" 
-                src={newSrc}
+                src={newSrc ? newSrc : (file ? URL.createObjectURL(file) : null)}
                 alt={file? file.name : null}
                 style={getImageStyle()}
             />
@@ -192,7 +167,7 @@ const Filter = ({ file, setNewFile, setFilterRem }) => {
                 style={style_hidden}
             />
             
-            <br/><br/><br/>
+            <br /><br /><br />
 
             <div className='button-filter'>
                 {options.map((option, index) => {
