@@ -68,55 +68,56 @@ const DisplayComment = ({
     const hideWhenVisible = { display: 'none'}
     const showWhenVisible = { display: ''}
 
+
     return (
         <div>
             {/* Display Comment */}
             <div style={commentVisible[post.id] ? showWhenVisible : hideWhenVisible}>
                 {post.comments.map(comment => 
-                    <div key={comment.id} className="post-comment">
-                        <div>
-                            <Link to={`/user/${comment.user.id}`}>
-                                <img src={comment.user.avatar} alt={`avatar not display ${comment.id}`} width="30px" height="30px" className='avatar-img-main'/>
-                            </Link>
-                        </div>
-                        
-                        <div>
-                            <p><b>{comment.user.username}</b></p>
-                            <p>{comment.content}</p>
-
+                    <div key={comment.id} >
+                        <div className="post-comment">
+                            {/* Display Avatar */}
                             <div>
-                                <div className='comment-date-reply'>
-                                    <p>{new Date(parseInt(comment.updated)).toLocaleString()}</p>
-                                    <button style={style} onClick={() => handleReplyShow(comment.id, comment.user.id)}>Reply</button>
-                                </div>
-
+                                <Link to={`/user/${comment.user.id}`}>
+                                    <img src={comment.user.avatar} alt={`avatar not display ${comment.id}`} width="30px" height="30px" className='avatar-img-main'/>
+                                </Link>
+                            </div>
+                            
+                            {/* Display Main section */}
+                            <div>
+                                <p><b>{comment.user.username}</b></p>
+                                <p>{comment.content}</p>
+                                <p>{new Date(parseInt(comment.updated)).toLocaleString()}</p>
+                
                                 {comment.childComments.length === 0
                                     ? <div></div>
                                     : <small onClick={() => handleChildCommentShow(comment.id)}> <b>Show {comment.childComments.length} comments</b> </small>
                                 }
-                        
-                                <DisplayChildComment 
-                                    childCommentVisible={childCommentVisible}
-                                    showWhenVisible={showWhenVisible}
-                                    hideWhenVisible={hideWhenVisible}
-                                    comment={comment}
-                                    style={style}
-                                    userID={userID}
-                                    postsAll={postsAll}
-                                    setPostsAll={setPostsAll}
-                                    styleHeartRed={styleHeartRed}
-                                    styleHeartBlack={styleHeartBlack}
-                                    handleReplyShow={handleReplyShow}
-                                />
+                            </div>
+                            
+                            {/* Display Reply &&& Likes */}
+                            <div className='post-comment-reply-likes'>
+                                <button style={comment.likes.find(user => user.id === userID) ? styleHeartRed : styleHeartBlack} onClick={() => handleCommentLikes(comment)}>
+                                    <i className="far fa-heart fa-1x"></i>
+                                    <b>{comment.likes.length}</b>
+                                </button>
+                                <button style={style} onClick={() => handleReplyShow(comment.id, comment.user.id)}>Reply</button>
                             </div>
                         </div>
-                        
-                        <div>
-                            <button style={comment.likes.find(user => user.id === userID) ? styleHeartRed : styleHeartBlack} onClick={() => handleCommentLikes(comment)}>
-                                <i className="far fa-heart fa-1x"></i>
-                                <b>{comment.likes.length}</b>
-                            </button>
-                        </div>
+
+                        <DisplayChildComment 
+                            childCommentVisible={childCommentVisible}
+                            showWhenVisible={showWhenVisible}
+                            hideWhenVisible={hideWhenVisible}
+                            comment={comment}
+                            style={style}
+                            userID={userID}
+                            postsAll={postsAll}
+                            setPostsAll={setPostsAll}
+                            styleHeartRed={styleHeartRed}
+                            styleHeartBlack={styleHeartBlack}
+                            handleReplyShow={handleReplyShow}
+                        />
                     </div>
                 )}
             

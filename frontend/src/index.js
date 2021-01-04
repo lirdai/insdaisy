@@ -15,6 +15,7 @@ import Home from './components/home'
 import Login from './components/login'
 import Register from './components/register'
 import User from './components/user'
+import Post from './components/post'
 
 
 
@@ -70,10 +71,15 @@ const App = () => {
   const [ username, setUsername ] = useState(localStorage.getItem('username'))
   const [ userID, setUserID ] = useState(localStorage.getItem('id'))
 
+
   return (
     <div>
       <Router>
         <Switch>
+          <Route exact path="/post/:id">
+            <Post userID={userID} />
+          </Route>
+
           <Route exact path="/user/:id">
             <User />
           </Route>

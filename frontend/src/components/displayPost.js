@@ -5,7 +5,7 @@ import Upload from './uploadPost'
 import Reply from './commentReply'
 import DisplayComment from './displayComment'
 import { 
-    ALL_POSTS, 
+    ALL_POSTS,
     ADD_POST, 
     ADD_POST_LIKES, 
     REMOVE_POST_LIKES, 
@@ -28,8 +28,6 @@ const DisplayPost = ({
     handleReplyClose,
     replyShow
 }) => {
-    // useState
-    const [ postsAll, setPostsAll ] = useState([])
     const [ userAll, setUserAll ] = useState(null)
     const [ commentVisible, setCommentVisible ] = useState({})
     const [ childCommentVisible, setChildCommentVisible ] = useState({})
@@ -40,7 +38,8 @@ const DisplayPost = ({
     // GraphQL
     const posts = useQuery(ALL_POSTS)
     const [ user, result_user ] = useLazyQuery(FIND_USER)
-    
+
+    const [ postsAll, setPostsAll ] = useState([])
     const [ addPost, result_post ] = useMutation(ADD_POST)
     const [ addPostLikes, result_addPostLikes ] = useMutation(ADD_POST_LIKES)
     const [ removePostLikes, result_removePostLikes ] = useMutation(REMOVE_POST_LIKES)
@@ -301,11 +300,14 @@ const DisplayPost = ({
                         <div key={post.id}>
                             <div className='onePost mb-5'>
                                 <div className="img-user-title-date">
-                                    <img style={{ filter: `${post.filter}` }} className='p-3' src={post.url} alt={`not display ${post.id}`} />
+                                    <Link to={`/post/${post.id}`}>
+                                        <img style={{ filter: `${post.filter}` }} className='p-3' src={post.url} alt={`not display ${post.id}`} />
+                                    </Link>
+
                                     <Link to={`/user/${post.user.id}`}>
                                         <h5>@ {post.user.username}</h5>
                                     </Link>
-                                    <h5><b>{post.title}</b></h5>
+                                    <h5>{post.title}</h5>
                                     <small>{new Date(parseInt(post.updated)).toLocaleString()}</small>
                                 </div>
                                 

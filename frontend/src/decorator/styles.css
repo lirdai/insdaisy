@@ -22,7 +22,7 @@
 /* Display Post */
 .avatar-fontawesome {
     display: grid;
-    grid-template-rows: 40% 30% 30%;
+    grid-template-rows: 30% 30% 30%;
 }
 
 .avatar-img-main {
@@ -72,7 +72,12 @@ input[type='range'] {
 .post-comment {
     margin-top: 20px;
     display: grid;
-    grid-template-columns: 10% 80% 10%;
+    grid-template-columns: auto auto auto;
+}
+
+.post-comment-reply-likes {
+    display: grid;
+    grid-template-rows: auto auto;
 }
 
 .comment-form {
@@ -327,4 +332,41 @@ input[type='range'] {
         max-width: 300px;
         height: 150px;
     }
+}
+
+
+
+/* Individual Post Page */
+.post-main-container {
+    margin: 10%;
+    display: grid;
+    justify-content: center;
+    align-content: center;
+}
+
+.post-individual-page {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-column-gap: 10%;
+}
+
+.post-img img {
+    max-width: 500px; 
+    height: 300px;
+}
+
+.post-avatar-button {
+    display: grid;
+    grid-template-rows: 30% 30% 30%;
+}
+
+.postComment {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: auto auto auto;
+}
+
+.postComment-reply-likes {
+    display: grid;
+    grid-template-rows: auto auto;
 }

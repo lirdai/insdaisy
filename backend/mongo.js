@@ -84,6 +84,7 @@ const typeDefs = gql`
     type Query {
         allPosts: [Post!]!
         findUser(id: ID): User!
+        findPost(id: ID): Post!
     }
 
     type Mutation {
@@ -168,7 +169,8 @@ const typeDefs = gql`
 const resolvers = {
     Query: {
         allPosts: () => Post.find({}),
-        findUser: (root, args) => User.findById(args.id)
+        findUser: (root, args) => User.findById(args.id),
+        findPost: (root, args) => Post.findById(args.id)
     },
     User: {
         posts(parent) {

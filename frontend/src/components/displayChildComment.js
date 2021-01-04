@@ -97,32 +97,34 @@ const DisplayChildComment = ({
             {/* Display Child Comment */}
             {comment.childComments.map(child => 
                 <div key={child.id} className="post-comment">
+                    {/* Display Avatar */}
                     <div>
                         <Link to={`/user/${child.user.id}`}>
                             <img src={child.user.avatar} alt={`avatar not display ${child.id}`} width="30px" height="30px" className='avatar-img-main' />
                         </Link>
                     </div>
 
+                    {/* Display Main section */}
                     <div>
-                        <p><b>
-                            {child.user.username}
-                            <i className="fas fa-arrow-right mx-3"></i>
-                            {child.replyTo.username}
-                        </b></p>
+                        <p>
+                            <b>
+                                {child.user.username}
+                                <i className="fas fa-arrow-right mx-3"></i>
+                                {child.replyTo.username}
+                            </b>
+                        </p>
                         <p>{child.content}</p>
-
-                        <div className='comment-date-reply'>
-                            <p>{new Date(parseInt(child.updated)).toLocaleString()}</p>
-                            <button style={style} onClick={() => handleReplyShow(comment.id, child.user.id)}>Reply</button>
-                        </div>
+                        <p>{new Date(parseInt(child.updated)).toLocaleString()}</p>
                     </div>
 
-                        <div>
-                            <button style={child.likes.find(user => user.id === userID) ? styleHeartRed : styleHeartBlack} onClick={() => handleChildCommentLikes(child)}>
-                                <i className="far fa-heart fa-1x"></i>
-                                <b>{child.likes.length}</b>
-                            </button>
-                        </div>
+                    {/* Display Reply &&& Likes */}        
+                    <div className='post-comment-reply-likes'>
+                        <button style={child.likes.find(user => user.id === userID) ? styleHeartRed : styleHeartBlack} onClick={() => handleChildCommentLikes(child)}>
+                            <i className="far fa-heart fa-1x"></i>
+                            <b>{child.likes.length}</b>
+                        </button>
+                        <button style={style} onClick={() => handleReplyShow(comment.id, child.user.id)}>Reply</button>
+                    </div>
                 </div>
             )} 
         </div>

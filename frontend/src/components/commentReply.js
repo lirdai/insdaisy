@@ -4,7 +4,6 @@ import { Button, Modal } from 'react-bootstrap'
 
 
 const Reply = ({ show, handleClose, userID, addChildComment, comment_id, reply_user }) => {
-   
     const handleSubmit = (event) => {
         event.preventDefault()
 
