@@ -15,8 +15,6 @@ const PostChildComment = ({
     styleHeartRed, 
     styleHeartBlack,
     childCommentVisible,
-    hideWhenVisible,
-    showWhenVisible,
     postInfo,
     setPostInfo,
     handleReplyShow
@@ -24,6 +22,16 @@ const PostChildComment = ({
     // console.log(comment)
     const [ addChildCommentLikes, result_addChildCommentLikes ] = useMutation(ADD_CHILD_COMMENT_LIKES)
     const [ removeChildCommentLikes, result_removeChildCommentLikes ] = useMutation(REMOVE_CHILD_COMMENT_LIKES)
+
+    const hideWhenVisible = { 
+        display: 'none', 
+        marginLeft: "50px" 
+    }
+
+    const showWhenVisible = { 
+        display: '',
+        marginLeft: "50px"
+    }
 
     const handleChildCommentLikes = (child) => {
         const childComment_find = child.likes.find(user => user.id === userID)
@@ -101,7 +109,7 @@ const PostChildComment = ({
                                 {child.replyTo.username}
                             </b>
                         </p>
-                        <p>{child.content}</p>
+                        <p className='post-content'>{child.content}</p>
                         <p>{new Date(parseInt(child.updated)).toLocaleString()}</p>
                     </div>
 

@@ -20,7 +20,9 @@ const DisplayComment = ({
     childCommentVisible,
     style, 
     styleHeartRed, 
-    styleHeartBlack
+    styleHeartBlack,
+    setError,
+    setSuccess
 }) => {
     const handleChildCommentShow = (id) => {
         if (childCommentVisible[id]) {
@@ -54,13 +56,20 @@ const DisplayComment = ({
         }
     }
 
-    const handleAddComment = (event) => {
+    const handleAddComment = async (event) => {
         event.preventDefault()
 
         const content = event.target.content.value
         const postID = event.target.post_id.value
 
-        addComment({ variables: { content: content, user: userID, post: postID } })
+        try {
+            await addComment({ variables: { content: content, user: userID, post: postID } })
+            setSuccess("Comment Added!")
+            setTimeout(() => setSuccess(null), 3000)
+        }catch(error) {
+            setError(error.message)
+            setTimeout(() => setError(null), 3000)
+        }
 
         event.target.content.value = ''
     }
@@ -86,7 +95,7 @@ const DisplayComment = ({
                             {/* Display Main section */}
                             <div>
                                 <p><b>{comment.user.username}</b></p>
-                                <p>{comment.content}</p>
+                                <p className='post-content'>{comment.content}</p>
                                 <p>{new Date(parseInt(comment.updated)).toLocaleString()}</p>
                 
                                 {comment.childComments.length === 0

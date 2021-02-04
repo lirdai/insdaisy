@@ -3,8 +3,17 @@ import { Button, Modal } from 'react-bootstrap'
 
 
 
-const Reply = ({ show, handleClose, userID, addChildComment, comment_id, reply_user }) => {
-    const handleSubmit = (event) => {
+const Reply = ({ 
+    show, 
+    handleClose, 
+    userID, 
+    addChildComment, 
+    comment_id, 
+    reply_user,
+    setError,
+    setSuccess
+}) => {
+    const handleSubmit = async (event) => {
         event.preventDefault()
 
         const content = event.target.childComment.value
@@ -12,8 +21,15 @@ const Reply = ({ show, handleClose, userID, addChildComment, comment_id, reply_u
         const parentComment = comment_id
         const replyTo = reply_user
 
-        addChildComment({ variables: { content, user, parentComment, replyTo } })
-
+        try {
+            await addChildComment({ variables: { content, user, parentComment, replyTo } })
+            setSuccess("Comment Added!")
+            setTimeout(() => setSuccess(null), 3000)
+        } catch(error) {
+            setError(error.message)
+            setTimeout(() => setError(null), 3000)
+        }
+        
         event.target.childComment.value = ''
     }
 
@@ -27,7 +43,7 @@ const Reply = ({ show, handleClose, userID, addChildComment, comment_id, reply_u
                     </Modal.Header>
 
                     <Modal.Body>
-                        <textarea type='text' name='childComment' placeholder='Your comment within 50 words...'></textarea>
+                        <textarea type='text' name='childComment' placeholder='Your comment within 50 letters...'></textarea>
                     </Modal.Body>
                     
                     <Modal.Footer>

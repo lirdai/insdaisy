@@ -18,7 +18,14 @@ mutation s3PreSign($key: String!, $type: String!) {
 
 
 
-const Upload = ({ handleClose, show, userID, addPost }) => {
+const Upload = ({ 
+    handleClose, 
+    show, 
+    userID, 
+    addPost,
+    setError,
+    setSuccess,
+ }) => {
     const [ s3PreSign, result_url ] = useMutation(S3_PRE_SIGN)
 
     const [ file, setFile ] = useState(null)
@@ -31,7 +38,7 @@ const Upload = ({ handleClose, show, userID, addPost }) => {
         setNewFile(null)
     }
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault()
 
         const key = file.name
@@ -59,13 +66,25 @@ const Upload = ({ handleClose, show, userID, addPost }) => {
                     const user = userID
                     const filter = filterRem
 
-                    addPost({ variables: { url, title, user, filter } })
-                    console.log("Upload Successfully")
+                    async function AddPostFunction() {
+                        try {
+                            await addPost({ variables: { url, title, user, filter } })
+                            setSuccess("Add Post Successfully!")
+                            setTimeout(() => setSuccess(null), 3000)
+                        } catch(error) {
+                            setError(error.message)
+                            setTimeout(() => setError(null), 3000)
+                        }   
+                    }
+                    AddPostFunction()
 
                     setFile(null)
                     setNewFile(null)
                 })
-                .catch(error => console.log(error))
+                .catch(error => {
+                    setError(error)
+                    setTimeout(() => setError(null), 3000)
+                })
         }
     }, [result_url.data])
     
@@ -79,15 +98,15 @@ const Upload = ({ handleClose, show, userID, addPost }) => {
                     </Modal.Header>
 
                     <Modal.Body>
-
                         <input 
                             type='file' 
                             name='image'
                             id="imageLoader"
                             onChange={handleImagePreview} 
+                            required
                         />
                         
-                        <br/><br/><br/>
+                        <br /><br /><br />
 
                         <Filter 
                             file={file} 
@@ -96,7 +115,12 @@ const Upload = ({ handleClose, show, userID, addPost }) => {
                             newFile={newFile}
                         />
                         
-                        <textarea type='text' name='title' placeholder='Your comment within 200 words...'></textarea>
+                        <textarea 
+                            type='text' 
+                            name='title' 
+                            placeholder='Your comment within 100 letters...'
+                            required
+                        ></textarea>
                     </Modal.Body>
                     
                     <Modal.Footer>

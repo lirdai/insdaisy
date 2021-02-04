@@ -11,8 +11,6 @@ const DisplayChildComment = ({
     postsAll,
     setPostsAll,
     childCommentVisible, 
-    showWhenVisible,
-    hideWhenVisible, 
     handleReplyShow,
     style,
     styleHeartRed,
@@ -21,6 +19,15 @@ const DisplayChildComment = ({
     const [ addChildCommentLikes, result_addChildCommentLikes ] = useMutation(ADD_CHILD_COMMENT_LIKES)
     const [ removeChildCommentLikes, result_removeChildCommentLikes ] = useMutation(REMOVE_CHILD_COMMENT_LIKES)
     
+    const hideWhenVisible = { 
+        display: 'none', 
+        marginLeft: "50px" 
+    }
+
+    const showWhenVisible = { 
+        display: '',
+        marginLeft: "50px"
+    }
 
     useEffect(() => {
         if (result_addChildCommentLikes.data) {
@@ -113,7 +120,7 @@ const DisplayChildComment = ({
                                 {child.replyTo.username}
                             </b>
                         </p>
-                        <p>{child.content}</p>
+                        <p className='post-content'>{child.content}</p>
                         <p>{new Date(parseInt(child.updated)).toLocaleString()}</p>
                     </div>
 

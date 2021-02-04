@@ -26,7 +26,11 @@ const DisplayPost = ({
     handleUploadClose,
     uploadShow,
     handleReplyClose,
-    replyShow
+    replyShow,
+    error,
+    success,
+    setError,
+    setSuccess,
 }) => {
     const [ userAll, setUserAll ] = useState(null)
     const [ commentVisible, setCommentVisible ] = useState({})
@@ -301,13 +305,18 @@ const DisplayPost = ({
                             <div className='onePost mb-5'>
                                 <div className="img-user-title-date">
                                     <Link to={`/post/${post.id}`}>
-                                        <img style={{ filter: `${post.filter}` }} className='p-3' src={post.url} alt={`not display ${post.id}`} />
+                                        {post.url.split(".").pop() === "mp4"
+                                            ? <video controls>
+                                                    <source src={post.url} type="video/mp4" />
+                                            </video>
+                                            : <img style={{ filter: `${post.filter}` }} className='p-3' src={post.url} alt={`not display ${post.id}`} />
+                                        } 
                                     </Link>
 
                                     <Link to={`/user/${post.user.id}`}>
                                         <h5>@ {post.user.username}</h5>
                                     </Link>
-                                    <h5>{post.title}</h5>
+                                    <h5 className='post-content'>{post.title}</h5>
                                     <small>{new Date(parseInt(post.updated)).toLocaleString()}</small>
                                 </div>
                                 
@@ -356,6 +365,8 @@ const DisplayPost = ({
                                 style={style}
                                 styleHeartRed={styleHeartRed}
                                 styleHeartBlack={styleHeartBlack}
+                                setError={setError}
+                                setSuccess={setSuccess}
                             />
                         </div>
                     )}
@@ -367,6 +378,10 @@ const DisplayPost = ({
                 show={uploadShow}
                 userID={userID}
                 addPost={addPost}
+                error={error}
+                success={success}
+                setError={setError}
+                setSuccess={setSuccess}
             />  
 
             <Reply 
@@ -376,6 +391,8 @@ const DisplayPost = ({
                 addChildComment={addChildComment}
                 comment_id={comment_id}
                 reply_user={reply_user}
+                setError={setError}
+                setSuccess={setSuccess}
             />   
         </div>
     )

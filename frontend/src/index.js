@@ -5,7 +5,18 @@ import {
   BrowserRouter as Router,
   Switch, Route, Redirect
 } from "react-router-dom"
-import { ApolloClient, ApolloProvider, HttpLink, InMemoryCache } from '@apollo/client'
+import { Provider } from 'react-redux'
+import { createStore, combineReducers } from 'redux'
+import { 
+  ApolloClient, 
+  ApolloProvider, 
+  HttpLink, 
+  InMemoryCache,
+  split
+} from '@apollo/client'
+import { setContext } from 'apollo-link-context'
+import { getMainDefinition } from '@apollo/client/utilities'
+import { WebSocketLink } from '@apollo/client/link/ws'
 
 // Static
 import './decorator/styles.css'
@@ -16,8 +27,51 @@ import Login from './components/login'
 import Register from './components/register'
 import User from './components/user'
 import Post from './components/post'
+import Friends from './components/friends'
+import userReducer from './components/userinfo'
 
 
+
+const reducer = combineReducers({
+  user: userReducer
+})
+
+const store = createStore(reducer)
+
+
+
+const authLink = setContext((_, { headers }) => {
+  const token = localStorage.getItem('phonenumbers-user-token')
+  return {
+    headers: {
+      ...headers,
+      authorization: token ? `bearer ${token}` : null,
+    }
+  }
+})
+
+const httpLink = new HttpLink({
+  uri: 'http://localhost:4000',
+})
+
+const wsLink = new WebSocketLink({
+  uri: `ws://localhost:4000/graphql`,
+  options: {
+    reconnect: true
+  }
+})
+
+const splitLink = split(
+  ({ query }) => {
+    const definition = getMainDefinition(query)
+    return (
+      definition.kind === 'OperationDefinition' &&
+      definition.operation === 'subscription'
+    )
+  },
+  wsLink,
+  authLink.concat(httpLink),
+)
 
 const client = new ApolloClient({
   cache: new InMemoryCache({
@@ -59,9 +113,7 @@ const client = new ApolloClient({
         },
       },
   }}),
-  link: new HttpLink({
-    uri: 'http://localhost:4000',
-  })
+  link: splitLink
 })
 
 
@@ -71,21 +123,43 @@ const App = () => {
   const [ username, setUsername ] = useState(localStorage.getItem('username'))
   const [ userID, setUserID ] = useState(localStorage.getItem('id'))
 
-
+  const [ error, setError ] = useState(null)
+  const [ success, setSuccess ] = useState(null)
+  
   return (
     <div>
       <Router>
         <Switch>
           <Route exact path="/post/:id">
-            <Post userID={userID} />
+            <Post 
+              userID={userID} 
+              error={error}
+              success={success}
+              setError={setError}
+              setSuccess={setSuccess}
+            />
           </Route>
 
           <Route exact path="/user/:id">
             <User />
           </Route>
+
+          <Route exact path="/friends/:id">
+            <Friends 
+              error={error}
+              success={success}
+              setError={setError}
+              setSuccess={setSuccess}
+            />
+          </Route>
           
           <Route exact path="/register">
-            <Register />
+            <Register 
+              error={error}
+              success={success}
+              setError={setError}
+              setSuccess={setSuccess}
+            />
           </Route>
 
           <Route exact path="/login">
@@ -95,6 +169,10 @@ const App = () => {
                   setToken={setToken} 
                   setUsername={setUsername}
                   setUserID={setUserID}
+                  error={error}
+                  success={success}
+                  setError={setError}
+                  setSuccess={setSuccess}
                 />
             }
           </Route>
@@ -105,6 +183,10 @@ const App = () => {
               token={token}
               userID={userID}
               username={username}
+              error={error}
+              success={success}
+              setError={setError}
+              setSuccess={setSuccess}
             />
           </Route>
         </Switch>
@@ -117,5 +199,7 @@ const App = () => {
 
 ReactDOM.render(
   <ApolloProvider client={client}>
-    <App /> 
+    <Provider store={store}>
+      <App /> 
+    </Provider>,
   </ApolloProvider>, document.getElementById('root'))

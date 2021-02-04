@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { gql, useLazyQuery } from '@apollo/client'
 import { useParams } from "react-router-dom"
 import { Link } from "react-router-dom"
+import { useDispatch } from 'react-redux'
 
 
 
@@ -11,6 +12,11 @@ query findUser($id: ID) {
     username
     avatar
     id
+    friends {
+        username
+        avatar
+        id
+    }
     posts {
         filter
         url
@@ -23,6 +29,7 @@ query findUser($id: ID) {
 
 const User = () => {
     const ID = useParams().id
+    const dispatch = useDispatch()
 
     const [ findUser, result_user ] = useLazyQuery(FIND_USER) 
     const [ userInfo, setUserInfo ] = useState(null)
@@ -36,6 +43,10 @@ const User = () => {
     useEffect(() => {
         if (result_user.data) {
             setUserInfo(result_user.data.findUser)
+            dispatch({ 
+                type: 'SAVE_USER', 
+                data: result_user.data.findUser 
+            })
         }
     }, [result_user.data])
 
@@ -54,7 +65,11 @@ const User = () => {
                             className='avatar-img'
                         />
 
-                        <h4>Hello, {userInfo.username}</h4>
+                        <Link to={`/friends/${userInfo.id}`}>
+                            <h4> {userInfo.friends.length} friends </h4>
+                        </Link>
+
+                        <h4> Hello, {userInfo.username} </h4>
                     </div>
                     
                     {/* Display Posts */}
@@ -65,13 +80,18 @@ const User = () => {
                             {userInfo.posts.map(post =>
                                 <div key={post.id}>
                                     <Link to={`/post/${post.id}`}>
-                                        <img 
+                                    {post.url.split(".").pop() === "mp4"
+                                        ? <video width="500" height="300" controls>
+                                            <source src={post.url} type="video/mp4" />
+                                        </video>
+                                        :  <img 
                                             style={{ filter: `${post.filter}` }}
                                             src={post.url}
                                             width="500" 
                                             height="300" 
                                             alt={`imagenotdisplay ${post.id}`}
                                         />
+                                    } 
                                     </Link>
                                 </div>
                             )}

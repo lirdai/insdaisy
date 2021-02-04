@@ -2,10 +2,20 @@ import React, { useState } from 'react'
 import { Link } from "react-router-dom"
 import { useApolloClient } from '@apollo/client'
 import DisplayPost from './displayPost'
+import Notification from './notification'
 
 
 
-const Home = ({ token, setToken, userID, username }) => {
+const Home = ({ 
+    token, 
+    setToken, 
+    userID, 
+    username,
+    error,
+    success,
+    setError,
+    setSuccess,
+}) => {
     // useState
     const [ uploadShow, setUploadShow ] = useState(false)
     const handleUploadClose = () => setUploadShow(false)
@@ -79,6 +89,7 @@ const Home = ({ token, setToken, userID, username }) => {
 
             {/* Display Post */}
             <div>
+                <Notification error={error} success={success} />
                 <DisplayPost 
                     userID={userID}
                     setReplyShow={setReplyShow}
@@ -86,6 +97,10 @@ const Home = ({ token, setToken, userID, username }) => {
                     uploadShow={uploadShow}
                     handleReplyClose={handleReplyClose}
                     replyShow={replyShow}
+                    error={error}
+                    success={success}
+                    setError={setError}
+                    setSuccess={setSuccess}
                 />
             </div>
         </div>

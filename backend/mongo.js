@@ -2,13 +2,18 @@ const { ApolloServer, UserInputError, gql } = require('apollo-server')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const AWS = require('aws-sdk')
+const { PubSub, withFilter } = require('apollo-server')
+const pubsub = new PubSub()
+
+
 
 const mongoose = require('mongoose')
 const User = require('./schema/user')
 const Post = require('./schema/post')
 const Comment = require('./schema/comment')
 const ChildComment = require('./schema/childComment')
-
+// const messages = []
+// messages(channel_name: String!): [Message!]
 
 
 if (process.argv.length < 4) {
@@ -30,7 +35,20 @@ mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true,
 
 
 
-const typeDefs = gql`
+const typeDefs = gql`  
+    type Message {
+        id: ID!
+        username: String
+        content: String!
+        channel_name: String!
+        created_at: String
+    }
+
+    type Subscription {
+        postMessage(channel_name: String!): Message!
+    }
+
+
     type Token {
         value: String!
         username: String!
@@ -81,13 +99,23 @@ const typeDefs = gql`
         id: ID!
     }
 
+
     type Query {
         allPosts: [Post!]!
         findUser(id: ID): User!
         findPost(id: ID): Post!
     }
 
+
     type Mutation {
+        postMessage(
+            username: String
+            content: String!
+            channel_name: String!
+            created_at: String
+        ): Message
+
+
         s3PreSign(
             key: String!
             type: String!
@@ -168,6 +196,7 @@ const typeDefs = gql`
   
 const resolvers = {
     Query: {
+        // messages: (root, args) => messages.filter(message => message.channel_name === args.channel_name),
         allPosts: () => Post.find({}),
         findUser: (root, args) => User.findById(args.id),
         findPost: (root, args) => Post.findById(args.id)
@@ -233,22 +262,30 @@ const resolvers = {
             //     accesskey: "****"
             // })        
 
-            const s3 = new AWS.S3({
-                apiVersion: "2006-03-01",
-                params: { Bucket: bucket }
-            })
-            
-            let url = s3.getSignedUrl("putObject", {
-                Bucket: bucket,
-                Key: key,
-                Expires: timeout,
-                ContentType: type,
-            })
+            try {
+                const s3 = new AWS.S3({
+                    apiVersion: "2006-03-01",
+                    params: { Bucket: bucket }
+                })
+                
+                var url = s3.getSignedUrl("putObject", {
+                    Bucket: bucket,
+                    Key: key,
+                    Expires: timeout,
+                    ContentType: type,
+                }) 
+            } catch(error) {
+                throw new UserInputError(error)
+            }
 
             return { url }
         },
         addPost: async (root, args) => {
             const user = await User.findById({ _id: args.user })
+
+            if (args.title.length > 100) {
+                throw new UserInputError("Add Post failed, please within 100 letters!")
+            }
 
             const post = new Post({
                 url: args.url,
@@ -299,6 +336,11 @@ const resolvers = {
         },  
         addComment: async (root, args) => {
             const post = await Post.findById(args.post)
+
+            if (args.content.length > 50) {
+                throw new UserInputError("Add Comment failed, please within 50 letters!")
+            }
+
             const comment = new Comment({
                 content: args.content,
                 user: args.user,
@@ -347,6 +389,10 @@ const resolvers = {
         },
         addChildComment: async (root, args) => {
             const comment = await Comment.findById(args.parentComment)
+
+            if (args.content.length > 100) {
+                throw new UserInputError("Add Comment failed, please within 50 letters!")
+            }
 
             const childComment = new ChildComment({
                 content: args.content,
@@ -399,12 +445,18 @@ const resolvers = {
             const saltRounds = 10
             const passwordHash = await bcrypt.hash(args.passwordHash, saltRounds)
 
+            userExist = await User.find({ username: args.username})
+   
+            if (userExist.length !== 0) {
+                throw new UserInputError("Username has been taken! Please register again!")
+            } 
+
             const user = new User({ 
                 username: args.username, 
                 avatar: args.avatar,
                 passwordHash: passwordHash 
             })
-        
+            
             return await user.save()
                 .catch(error => {
                 throw new UserInputError(error)
@@ -466,6 +518,36 @@ const resolvers = {
                 id: user._id
             }
         },
+        postMessage: (root, args) => {
+            const id = Math.random().toString(36).slice(2,15)
+            const username = args.username
+            const content = args.content
+            const channel_name = args.channel_name
+            const created_at = args.created_at
+
+            const message = {
+                id,
+                username,
+                content,
+                channel_name,
+                created_at,
+            }
+
+            // messages.push(message)
+            pubsub.publish('postMessage', { postMessage: message })
+
+            return message 
+        },
+    },
+    Subscription: {
+        postMessage: {
+          subscribe: withFilter(
+            () => pubsub.asyncIterator('postMessage'),
+            (payload, args) => {
+             return payload.postMessage.channel_name === args.channel_name
+            },
+          ),
+        }
     }
 }
 
@@ -476,6 +558,7 @@ const server = new ApolloServer({
     resolvers,
 })
 
-server.listen().then(({ url }) => {
+server.listen().then(({ url, subscriptionsUrl  }) => {
     console.log(`Server ready at ${url}`)
+    console.log(`Subscriptions ready at ${subscriptionsUrl}`)
 })

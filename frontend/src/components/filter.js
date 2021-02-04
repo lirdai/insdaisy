@@ -143,7 +143,6 @@ const Filter = ({ file, setNewFile, setFilterRem }) => {
         }
     }
 
-
     return (
         <div>
             <img 
@@ -154,13 +153,18 @@ const Filter = ({ file, setNewFile, setFilterRem }) => {
                 onLoad={handleOnLoad}
             />
 
-            <img
-                id="filtered-image"
-                width="100%" 
-                src={newSrc ? newSrc : (file ? URL.createObjectURL(file) : null)}
-                alt={file? file.name : null}
-                style={getImageStyle()}
-            />
+            {file === null
+                ? null
+                : file.name.split(".").pop() === "mp4"
+                    ? null
+                    :  <img
+                        id="filtered-image"
+                        width="100%" 
+                        src={newSrc ? newSrc : (file ? URL.createObjectURL(file) : null)}
+                        alt={file? file.name : null}
+                        style={getImageStyle()}
+                    />
+            }
 
             <canvas 
                 id="filtered-canvas" 
@@ -168,43 +172,49 @@ const Filter = ({ file, setNewFile, setFilterRem }) => {
             />
             
             <br /><br /><br />
+            {file === null
+                ? null
+                : file.name.split(".").pop() === "mp4"
+                    ? null
+                    : <div>
+                        <div className='button-filter'>
+                            {options.map((option, index) => {
+                                return(
+                                    <button key={index} type='button' className='btn btn-warning' onClick={() => setSelectedOptionIndex(index)}>
+                                        {option.name}
+                                    </button>
+                                )
+                            })}
+                        </div>
 
-            <div className='button-filter'>
-                {options.map((option, index) => {
-                    return(
-                        <button key={index} type='button' className='btn btn-warning' onClick={() => setSelectedOptionIndex(index)}>
-                            {option.name}
-                        </button>
-                    )
-                })}
-            </div>
+                        <input 
+                            type='range' 
+                            min={selectedOption.range.min}
+                            max={selectedOption.range.max}
+                            value={selectedOption.value}
+                            onChange={handleSliderChange}
+                        />
 
-            <input 
-                type='range' 
-                min={selectedOption.range.min}
-                max={selectedOption.range.max}
-                value={selectedOption.value}
-                onChange={handleSliderChange}
-            />
+                        <br /><br /><br />
 
-            <br /><br /><br />
-
-            <h3>More advanced filter options...</h3>
-            <select id="filter-changer" onChange={handleAdvancedFilter}>
-                <option value="none">None</option>
-                <option value="red">Red</option>
-                <option value="gaussian">Gaussian</option>
-                <option value="highpass">highpass</option>
-                <option value="invert">invert</option>
-                <option value="laplacian">laplacian</option>
-                <option value="prewittHorizontal">Prewitt Horizontal</option>
-                <option value="prewittVertical">Prewitt Vertical</option>
-                <option value="roberts">roberts</option>
-                <option value="sharpen">sharpen</option>
-                <option value="sobelHorizontal">sobel Horizontal</option>
-                <option value="sobelVertical">sobel Vertical</option>
-                <option value="thresholding">thresholding</option>
-            </select>
+                        <h3>More advanced filter options...</h3>
+                        <select id="filter-changer" onChange={handleAdvancedFilter}>
+                            <option value="none">None</option>
+                            <option value="red">Red</option>
+                            <option value="gaussian">Gaussian</option>
+                            <option value="highpass">highpass</option>
+                            <option value="invert">invert</option>
+                            <option value="laplacian">laplacian</option>
+                            <option value="prewittHorizontal">Prewitt Horizontal</option>
+                            <option value="prewittVertical">Prewitt Vertical</option>
+                            <option value="roberts">roberts</option>
+                            <option value="sharpen">sharpen</option>
+                            <option value="sobelHorizontal">sobel Horizontal</option>
+                            <option value="sobelVertical">sobel Vertical</option>
+                            <option value="thresholding">thresholding</option>
+                        </select>
+                    </div>
+            }
         </div>
     )
 }

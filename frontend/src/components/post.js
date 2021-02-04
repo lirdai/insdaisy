@@ -12,6 +12,7 @@ import {
 } from './queries'
 import PostComment from './postComment'
 import Reply from "./commentReply"
+import Notification from './notification'
 
 
 
@@ -71,7 +72,13 @@ query findPost($id: ID) {
 
 
 
-const Post = ({ userID }) => {
+const Post = ({ 
+    userID,
+    error,
+    success,
+    setError,
+    setSuccess
+}) => {
     // GraphQL
     const [ findPost, result_post ] = useLazyQuery(FIND_POST) 
     const [ addPostLikes, result_addPostLikes ] = useMutation(ADD_POST_LIKES)
@@ -232,7 +239,7 @@ const Post = ({ userID }) => {
     // Add ChildComment
     useEffect(() => {
         if (result_addChildComment.data) {
-            console.log(result_addChildComment.data.addChildComment)
+            // console.log(result_addChildComment.data.addChildComment)
             const newPost = {
                 ...postInfo,
                 comments: postInfo.comments.map(comment => comment.id === result_addChildComment.data.addChildComment.parentComment.id
@@ -247,28 +254,30 @@ const Post = ({ userID }) => {
         }
     }, [result_addChildComment.data])
 
-    // console.log(childCommentVisible)
-    console.log(userAll)
-    console.log(postInfo)
-    return (
+    return (    
         <div className='post-main-container'>
+            <Notification error={error} success={success} />
             {postInfo
                 ? <div className='post-individual-page'>
                     <div className='post-img'>
-                        <img 
-                            style={{ filter: `${postInfo.filter}` }}
-                            src={postInfo.url} 
-                            alt={`imageNotDisplay ${postInfo.id}`} 
-                        />
-
+                        {postInfo.url.split(".").pop() === "mp4"
+                            ? <video controls>
+                                    <source src={postInfo.url} type="video/mp4" />
+                            </video>
+                            :  <img 
+                                style={{ filter: `${postInfo.filter}` }}
+                                src={postInfo.url} 
+                                alt={`imageNotDisplay ${postInfo.id}`} 
+                            />
+                        } 
                         <Link to={`/user/${postInfo.user.id}`}>
                             <h5>@ {postInfo.user.username}</h5>
                         </Link>
-                        <h5>{postInfo.title}</h5>
+                        <h5 className="post-content">{postInfo.title}</h5>
                         <small>{new Date(parseInt(postInfo.updated)).toLocaleString()}</small>
                     </div>
                     
-                    <div className='post-avatar-button'>
+                    <div className='post-avatar-button mt-3'>
                         <div className='avatar-img-main-position'>
                             <Link to={`/user/${postInfo.user.id}`}>
                                 <img 
@@ -308,27 +317,33 @@ const Post = ({ userID }) => {
                         userID={userID}
                         styleHeartRed={styleHeartRed}
                         styleHeartBlack={styleHeartBlack}
-                        setPostInfo={setPostInfo}
                         childCommentVisible={childCommentVisible}
+                        setPostInfo={setPostInfo}
                         setChildCommentVisible={setChildCommentVisible}
                         setReplyShow={setReplyShow}
                         setCommentID={setCommentID}
                         setReplyUser={setReplyUser}
+                        error={error}
+                        success={success}
+                        setError={setError}
+                        setSuccess={setSuccess}
                     />
                 </div>
                 : <div>Loading...</div>
             }
 
             <Reply 
-                handleClose={handleReplyClose}
-                show={replyShow}
                 userID={userID}
-                addChildComment={addChildComment}
+                show={replyShow}
                 comment_id={comment_id}
                 reply_user={reply_user}
+                handleClose={handleReplyClose}
+                addChildComment={addChildComment}
                 setReplyShow={setReplyShow} 
                 setCommentID={setCommentID}
                 setReplyUser={setReplyUser}
+                setError={setError}
+                setSuccess={setSuccess}
             />   
         </div>
     )

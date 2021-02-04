@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { gql, useMutation } from '@apollo/client'
 import { useHistory } from 'react-router-dom'
 import axios from 'axios'
+import Notification from './notification'
 
 
 
@@ -28,7 +29,12 @@ mutation s3PreSign($key: String!, $type: String!) {
 
 
 
-const Register = () => {
+const Register = ({
+    error,
+    success,
+    setError,
+    setSuccess,
+}) => {
     const history = useHistory()
     const [ createUser ] = useMutation(CREATE_USER)
     const [ s3PreSign, result_url ] = useMutation(S3_PRE_SIGN)
@@ -36,7 +42,7 @@ const Register = () => {
     const [ username, setUsername ] = useState(null)
     const [ passwordHash, setPasswordHash ] = useState(null)
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault()
 
         setFile(event.target.avatar.files[0])
@@ -46,8 +52,15 @@ const Register = () => {
         const key = event.target.avatar.files[0].name
         const type = event.target.avatar.files[0].type
 
-        s3PreSign({ variables: { key, type } })
-
+        try {
+            await s3PreSign({ variables: { key, type } })
+            setSuccess("Upload Successfully")
+            setTimeout(() => setSuccess(null), 3000)
+        } catch(error) {
+            setError("Something wrong, please try again")
+            setTimeout(() => setError(null), 3000)
+        }
+        
         event.target.username.value = ''
         event.target.pwd.value = ''
     }
@@ -63,20 +76,34 @@ const Register = () => {
             })
                 .then(result => {
                     const avatar = `https://daisy-ins.s3.amazonaws.com/${file.name}`
-
-                    createUser({ variables: { username, avatar, passwordHash } })
+                    async function CreateUserFunction() {
+                        try {
+                            await createUser({ variables: { username, avatar, passwordHash } })
+                            setSuccess("Please login")
+                            setTimeout(() => setSuccess(null), 3000)
+                        } catch (error) {
+                            console.log(error)
+                            setError(error.message)
+                            setTimeout(() => setError(null), 3000)
+                        }
+                    }
+                    CreateUserFunction()
                     history.push('/login')
                 })
-                .catch(error => console.log(error))
+                .catch(error => {
+                    setError(error.message)
+                    setTimeout(() => setError(null), 3000)
+                })
         }
     }, [createUser, result_url.data])
 
     return (
         <div className='register-bigger'>
         <form onSubmit={handleSubmit} className='register'>
-            <input type='text' name='username' placeholder='Username' />
-            <input type='text' name='pwd' placeholder='Password' />
-            <input type='file' name='avatar' />
+            <Notification error={error} success={success} />
+            <input type='text' name='username' placeholder='Username' required />
+            <input type='text' name='pwd' placeholder='Password' required />
+            <input type='file' name='avatar' required />
 
             <input type='submit' value='Register' />
         </form>

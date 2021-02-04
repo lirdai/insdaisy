@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { Link } from "react-router-dom"
 import { gql, useMutation } from '@apollo/client'
+import Notification from './notification'
 
 
 
@@ -18,16 +19,31 @@ mutation login($username: String!, $passwordHash: String!) {
 
 
 
-const Login = ({ setToken, setUsername, setUserID, setFriendLists }) => {
+const Login = ({ 
+    setToken, 
+    setUsername, 
+    setUserID,
+    error,
+    success,
+    setError,
+    setSuccess
+}) => {
     const [ login, result_login ] = useMutation(LOGIN)
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault()
 
         const username = event.target.username.value
         const passwordHash = event.target.pwd.value
 
-        login({ variables: { username, passwordHash } })
+        try {
+            await login({ variables: { username, passwordHash } })
+            setSuccess("Login Successfully!")
+            setTimeout(() => setSuccess(null), 3000)
+        } catch(error) {
+            setError(error.message)
+            setTimeout(() => setError(null), 3000)
+        }
 
         event.target.username.value = ''
         event.target.pwd.value = ''
@@ -49,8 +65,9 @@ const Login = ({ setToken, setUsername, setUserID, setFriendLists }) => {
     return (
         <div className='login-bigger'>
             <form onSubmit={handleSubmit} className='login'>
-                <input type='text' name='username' placeholder='Username' />
-                <input type='text' name='pwd' placeholder='Password' />
+                <Notification error={error} success={success} />
+                <input type='text' name='username' placeholder='Username' required />
+                <input type='text' name='pwd' placeholder='Password' required />
 
                 <input type='submit' value='Log In' />
                 <small>Don't have an account yet? Please <Link to='/register'>register here.</Link></small>
