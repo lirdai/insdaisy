@@ -1,18 +1,18 @@
 {
   "files": {
-    "main.css": "/static/css/main.680094fa.chunk.css",
-    "main.js": "/static/js/main.af4a00c8.chunk.js",
-    "main.js.map": "/static/js/main.af4a00c8.chunk.js.map",
-    "runtime-main.js": "/static/js/runtime-main.c60b7f5c.js",
-    "runtime-main.js.map": "/static/js/runtime-main.c60b7f5c.js.map",
-    "static/js/2.71c577c0.chunk.js": "/static/js/2.71c577c0.chunk.js",
-    "static/js/2.71c577c0.chunk.js.map": "/static/js/2.71c577c0.chunk.js.map",
-    "index.html": "/index.html",
-    "static/css/main.680094fa.chunk.css.map": "/static/css/main.680094fa.chunk.css.map",
-    "static/js/2.71c577c0.chunk.js.LICENSE.txt": "/static/js/2.71c577c0.chunk.js.LICENSE.txt"
+    "main.css": "insdaisy.daisywebdev.com/static/css/main.680094fa.chunk.css",
+    "main.js": "insdaisy.daisywebdev.com/static/js/main.af4a00c8.chunk.js",
+    "main.js.map": "insdaisy.daisywebdev.com/static/js/main.af4a00c8.chunk.js.map",
+    "runtime-main.js": "insdaisy.daisywebdev.com/static/js/runtime-main.a69cd08f.js",
+    "runtime-main.js.map": "insdaisy.daisywebdev.com/static/js/runtime-main.a69cd08f.js.map",
+    "static/js/2.71c577c0.chunk.js": "insdaisy.daisywebdev.com/static/js/2.71c577c0.chunk.js",
+    "static/js/2.71c577c0.chunk.js.map": "insdaisy.daisywebdev.com/static/js/2.71c577c0.chunk.js.map",
+    "index.html": "insdaisy.daisywebdev.com/index.html",
+    "static/css/main.680094fa.chunk.css.map": "insdaisy.daisywebdev.com/static/css/main.680094fa.chunk.css.map",
+    "static/js/2.71c577c0.chunk.js.LICENSE.txt": "insdaisy.daisywebdev.com/static/js/2.71c577c0.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "static/js/runtime-main.c60b7f5c.js",
+    "static/js/runtime-main.a69cd08f.js",
     "static/js/2.71c577c0.chunk.js",
     "static/css/main.680094fa.chunk.css",
     "static/js/main.af4a00c8.chunk.js"
