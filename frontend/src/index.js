@@ -55,7 +55,7 @@ const httpLink = new HttpLink({
 })
 
 const wsLink = new WebSocketLink({
-  uri: `ws://insdaisy.daisywebdev.com/graphql-ws`,
+  uri: `wss://insdaisy.daisywebdev.com/graphql-ws`,
   options: {
     reconnect: true
   }
