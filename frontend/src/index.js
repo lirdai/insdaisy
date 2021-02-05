@@ -51,7 +51,7 @@ const authLink = setContext((_, { headers }) => {
 })
 
 const httpLink = new HttpLink({
-  uri: 'http://insdaisy.daisywebdev.com/graphql',
+  uri: 'https://insdaisy.daisywebdev.com/graphql',
 })
 
 const wsLink = new WebSocketLink({
