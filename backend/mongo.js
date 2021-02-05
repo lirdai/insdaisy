@@ -1,4 +1,8 @@
-const { ApolloServer, UserInputError, gql } = require('apollo-server')
+const http = require('http')
+const { ApolloServer, UserInputError, gql } = require('apollo-server-express')
+const express = require("express")
+const path = require("path")
+require("dotenv").config()
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const AWS = require('aws-sdk')
@@ -16,13 +20,14 @@ const ChildComment = require('./schema/childComment')
 // messages(channel_name: String!): [Message!]
 
 
-if (process.argv.length < 4) {
-  console.log('Please provide the password as an argument: node mongo.js <password> <secret_key>')
-  process.exit(1)
-}
 
-const password = process.argv[2]
-const JWT_SECRET = process.argv[3]
+// if (process.argv.length < 4) {
+//   console.log('Please provide the password as an argument: node mongo.js <password> <secret_key>')
+//   process.exit(1)
+// }
+
+const password = process.env.MONGO_PASSWORD
+const JWT_SECRET = process.env.JWT_SECRET
 const MONGODB_URI = `mongodb+srv://insdaisy:${password}@cluster0.wtbvi.mongodb.net/insdaisy?retryWrites=true&w=majority`
 
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true })
@@ -553,12 +558,30 @@ const resolvers = {
 
 
 
+const PORT = 4000
+const app = express()
+
 const server = new ApolloServer({
     typeDefs,
     resolvers,
+    subscriptions: { path: '/graphql-ws' }
 })
 
-server.listen().then(({ url, subscriptionsUrl  }) => {
-    console.log(`Server ready at ${url}`)
-    console.log(`Subscriptions ready at ${subscriptionsUrl}`)
+server.applyMiddleware({ app })
+const httpServer = http.createServer(app)
+server.installSubscriptionHandlers(httpServer)
+
+app.use(express.static('build'))
+app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'build','index.html'))
 })
+
+httpServer.listen(PORT, () => {
+    console.log(`Server ready at http://localhost:${PORT}${server.graphqlPath}`)
+    console.log(`Subscriptions ready at ws://localhost:${PORT}${server.subscriptionsPath}`)
+})
+
+// server.listen().then(({ url, subscriptionsUrl }) => {
+//     console.log(`Server ready at ${url}`)
+//     console.log(`Subscriptions ready at ${subscriptionsUrl}`)
+// })
