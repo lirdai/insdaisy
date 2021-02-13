@@ -50,7 +50,7 @@ const User = () => {
         }
     }, [result_user.data])
 
-    console.log(userInfo)
+    // console.log(userInfo)
     return (
         <div>  
             {userInfo

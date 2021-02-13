@@ -47,12 +47,14 @@ const DisplayComment = ({
     }
 
     const handleCommentLikes = (comment) => {
-        const comment_find = comment.likes.find(user => user.id === userID)
-        const likes = comment.likes.map(user => user.id)
-        if (comment_find) {
-            removeCommentLikes({ variables: { id:comment.id, likes:likes.filter(id => id !== userID) } })
-        } else {
-            addCommentLikes({ variables: { id:comment.id, likes:likes.concat(userID) } })
+        if (localStorage.getItem('token') !== null) {
+            const comment_find = comment.likes.find(user => user.id === userID)
+            const likes = comment.likes.map(user => user.id)
+            if (comment_find) {
+                removeCommentLikes({ variables: { id:comment.id, likes:likes.filter(id => id !== userID) } })
+            } else {
+                addCommentLikes({ variables: { id:comment.id, likes:likes.concat(userID) } })
+            }
         }
     }
 

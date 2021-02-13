@@ -8,6 +8,7 @@ const bcrypt = require('bcrypt')
 const AWS = require('aws-sdk')
 const { PubSub, withFilter } = require('apollo-server')
 const pubsub = new PubSub()
+const cors = require('cors')
 
 
 
@@ -255,6 +256,7 @@ const resolvers = {
     },
     Mutation: {
         s3PreSign: async (root, args) => {  
+
             const bucket = "daisy-ins"           
             const key = args.key
             const type = args.type
@@ -574,17 +576,13 @@ server.applyMiddleware({ app })
 const httpServer = http.createServer(app)
 server.installSubscriptionHandlers(httpServer)
 
+app.use(cors())
 app.use(express.static('build'))
 app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, 'build','index.html'))
 })
 
 httpServer.listen(PORT, () => {
-    console.log(`Server ready at http://localhost:${PORT}${server.graphqlPath}`)
-    console.log(`Subscriptions ready at ws://localhost:${PORT}${server.subscriptionsPath}`)
+    console.log(`Server ready at ${PORT}${server.graphqlPath}`)
+    console.log(`Subscriptions ready at ${PORT}${server.subscriptionsPath}`)
 })
-
-// server.listen().then(({ url, subscriptionsUrl }) => {
-//     console.log(`Server ready at ${url}`)
-//     console.log(`Subscriptions ready at ${subscriptionsUrl}`)
-// })

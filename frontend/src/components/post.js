@@ -142,12 +142,14 @@ const Post = ({
 
     // onClick
     const handlePostLikes = (post) => {
-        const post_find = post.likes.find(user => user.id === userID)
-        const likes = post.likes.map(user => user.id)
-        if (post_find) {
-            removePostLikes({ variables: { id:post.id, likes:likes.filter(id => id !== userID) } })
-        } else {
-            addPostLikes({ variables: { id:post.id, likes:likes.concat(userID) } })
+        if (localStorage.getItem('token') !== null) {
+            const post_find = post.likes.find(user => user.id === userID)
+            const likes = post.likes.map(user => user.id)
+            if (post_find) {
+                removePostLikes({ variables: { id:post.id, likes:likes.filter(id => id !== userID) } })
+            } else {
+                addPostLikes({ variables: { id:post.id, likes:likes.concat(userID) } })
+            }
         }
     }
 

@@ -92,9 +92,9 @@ const Friends = ({ error, success, setError, setSuccess }) => {
         }
     }, [user])
 
-    console.log(channelSent, channelReceived)
-    console.log(chatHistory)
-    console.log(user)
+    // console.log(channelSent, channelReceived)
+    // console.log(chatHistory)
+    // console.log(user)
     // Channel Name: Username
     return (
         <div className="container">

@@ -68,10 +68,10 @@ const Register = ({
     useEffect(() => {
         if (result_url.data) {
             const url = result_url.data.s3PreSign.url
-      
+
             axios
                 .put(url, file, {headers: {
-                    "Content-Type": file.type
+                    "Content-Type": file.type,
                 }
             })
                 .then(result => {

@@ -59,12 +59,14 @@ const DisplayPost = ({
 
     // onClick
     const handlePostLikes = (post) => {
-        const post_find = post.likes.find(user => user.id === userID)
-        const likes = post.likes.map(user => user.id)
-        if (post_find) {
-            removePostLikes({ variables: { id:post.id, likes:likes.filter(id => id !== userID) } })
-        } else {
-            addPostLikes({ variables: { id:post.id, likes:likes.concat(userID) } })
+        if (localStorage.getItem('token') !== null) {
+            const post_find = post.likes.find(user => user.id === userID)
+            const likes = post.likes.map(user => user.id)
+            if (post_find) {
+                removePostLikes({ variables: { id:post.id, likes:likes.filter(id => id !== userID) } })
+            } else {
+                addPostLikes({ variables: { id:post.id, likes:likes.concat(userID) } })
+            }
         }
     }
 
@@ -193,7 +195,7 @@ const DisplayPost = ({
     // Update Post Likes
     useEffect(() => {
         if (result_addPostLikes.data) {
-            // console.log(result_addLikes.data.addPostLikes)
+            // console.log(result_addPostLikes.data.addPostLikes)
             setPostsAll(postsAll => postsAll.map(post => post.id === result_addPostLikes.data.addPostLikes.id 
                 ? {
                     ...post,
@@ -236,7 +238,7 @@ const DisplayPost = ({
 
     useEffect(() => {
         if (result_addCommentLikes.data) {
-            // console.log(result_addCommentLikes.data.addCommentLikes)
+            console.log(result_addCommentLikes.data.addCommentLikes)
             setPostsAll(postsAll => postsAll.map(post => post.id === result_addCommentLikes.data.addCommentLikes.post.id 
                 ? {
                     ...post,
@@ -294,7 +296,7 @@ const DisplayPost = ({
         }
     }, [result_childComment.data]) 
 
-
+    // console.log(postsAll, userAll)
     return (
         <div className='content'>
             {postsAll.loading

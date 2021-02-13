@@ -34,12 +34,14 @@ const PostChildComment = ({
     }
 
     const handleChildCommentLikes = (child) => {
-        const childComment_find = child.likes.find(user => user.id === userID)
-        const likes = child.likes.map(user => user.id)
-        if (childComment_find) {
-            removeChildCommentLikes({ variables: { id:child.id, likes:likes.filter(id => id !== userID) } })
-        } else {
-            addChildCommentLikes({ variables: { id:child.id, likes:likes.concat(userID) } })
+        if (localStorage.getItem('token') !== null) {
+            const childComment_find = child.likes.find(user => user.id === userID)
+            const likes = child.likes.map(user => user.id)
+            if (childComment_find) {
+                removeChildCommentLikes({ variables: { id:child.id, likes:likes.filter(id => id !== userID) } })
+            } else {
+                addChildCommentLikes({ variables: { id:child.id, likes:likes.concat(userID) } })
+            }
         }
     }
 

@@ -51,11 +51,11 @@ const authLink = setContext((_, { headers }) => {
 })
 
 const httpLink = new HttpLink({
-  uri: 'https://insdaisy.daisywebdev.com/graphql',
+  uri: 'http://localhost:4000/graphql',
 })
 
 const wsLink = new WebSocketLink({
-  uri: `wss://insdaisy.daisywebdev.com/graphql-ws`,
+  uri: `ws://localhost:4000/graphql-ws`,
   options: {
     reconnect: true
   }
