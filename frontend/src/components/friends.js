@@ -49,7 +49,7 @@ const Friends = ({ error, success, setError, setSuccess }) => {
     useSubscription(POST_MESSAGE_SUB, {
         variables: { channel_name:channelReceived },
         onSubscriptionData: ({ subscriptionData }) => {
-            console.log(subscriptionData.data.postMessage.username)
+            // console.log(subscriptionData.data.postMessage.username)
             setChatHistory(chatHistory.concat(subscriptionData.data.postMessage))
             if (channelSent !== subscriptionData.data.postMessage.username) {
                 setSuccess(`You received message from ${subscriptionData.data.postMessage.username}`)

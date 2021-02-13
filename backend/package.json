@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "nodemon mongo.js",
     "start": "set NODE_ENV=production && node mongo.js",
+    "deploy": "sudo rm -rf /var/www/insdaisy.daisywebdev.com/public/* && sudo cp -r build/* /var/www/insdaisy.daisywebdev.com/public/",
     "test": "echo \\\"Error: no test specified\\\" && exit 1"
   },
   "author": "Daisy Dai",

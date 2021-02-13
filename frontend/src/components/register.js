@@ -82,7 +82,7 @@ const Register = ({
                             setSuccess("Please login")
                             setTimeout(() => setSuccess(null), 3000)
                         } catch (error) {
-                            console.log(error)
+                            // console.log(error)
                             setError(error.message)
                             setTimeout(() => setError(null), 3000)
                         }

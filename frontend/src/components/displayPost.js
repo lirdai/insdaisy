@@ -238,7 +238,7 @@ const DisplayPost = ({
 
     useEffect(() => {
         if (result_addCommentLikes.data) {
-            console.log(result_addCommentLikes.data.addCommentLikes)
+            // console.log(result_addCommentLikes.data.addCommentLikes)
             setPostsAll(postsAll => postsAll.map(post => post.id === result_addCommentLikes.data.addCommentLikes.post.id 
                 ? {
                     ...post,
